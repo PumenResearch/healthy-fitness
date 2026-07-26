@@ -17,8 +17,8 @@ html, body {
 }
 
 body {
-  background: #000;
-  color: #fff;
+  background: var(--dash-app-gradient, #000);
+  color: var(--dash-text-primary, #fff);
 }
 
 #root {

@@ -9,19 +9,6 @@
   --dash-info: #3b82f6;
   --dash-purple: #8b5cf6;
 
-  --dash-bg-app: #080808;
-  --dash-bg-panel: rgba(14, 14, 16, 0.78);
-  --dash-bg-panel-strong: rgba(20, 20, 23, 0.92);
-  --dash-bg-soft: rgba(255, 255, 255, 0.045);
-  --dash-bg-hover: rgba(255, 255, 255, 0.075);
-  --dash-bg-active: rgba(229, 62, 62, 0.14);
-  --dash-border: rgba(255, 255, 255, 0.09);
-  --dash-border-strong: rgba(255, 255, 255, 0.14);
-
-  --dash-text-primary: #ffffff;
-  --dash-text-secondary: rgba(255, 255, 255, 0.68);
-  --dash-text-muted: rgba(255, 255, 255, 0.45);
-
   --dash-radius-xl: 24px;
   --dash-radius-lg: 18px;
   --dash-radius-md: 14px;
@@ -29,8 +16,85 @@
   --dash-sidebar-width: 280px;
   --dash-sidebar-width-collapsed: 84px;
   --dash-header-height: 72px;
-  --dash-shadow-card: 0 22px 60px rgba(0, 0, 0, 0.35);
   --dash-transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ===== Light theme (default) ===== */
+  color-scheme: light;
+  --dash-bg-app: #f2f4f8;
+  --dash-app-gradient:
+    radial-gradient(circle at 18% 12%, rgba(229, 62, 62, 0.10), transparent 32rem),
+    radial-gradient(circle at 88% 2%, rgba(255, 107, 53, 0.09), transparent 28rem),
+    radial-gradient(circle at 74% 84%, rgba(59, 130, 246, 0.07), transparent 34rem),
+    linear-gradient(135deg, #eef1f6 0%, #f6f8fb 48%, #eceff5 100%);
+  --dash-bg-panel: rgba(255, 255, 255, 0.82);
+  --dash-bg-panel-strong: rgba(255, 255, 255, 0.92);
+  --dash-header-bg: rgba(246, 248, 251, 0.78);
+  --dash-bg-soft: rgba(15, 23, 42, 0.04);
+  --dash-bg-hover: rgba(15, 23, 42, 0.06);
+  --dash-bg-active: rgba(229, 62, 62, 0.1);
+  --dash-surface-1: rgba(15, 23, 42, 0.035);
+  --dash-surface-2: rgba(15, 23, 42, 0.05);
+  --dash-surface-3: rgba(15, 23, 42, 0.07);
+  --dash-card-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.62));
+  --dash-card-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.7), transparent 34%);
+  --dash-border: rgba(15, 23, 42, 0.1);
+  --dash-border-strong: rgba(15, 23, 42, 0.16);
+  --dash-grid-line: rgba(15, 23, 42, 0.04);
+  --dash-scrollbar: rgba(15, 23, 42, 0.2);
+  --dash-scrollbar-hover: rgba(15, 23, 42, 0.32);
+  --dash-scrim: rgba(15, 23, 42, 0.42);
+  --dash-badge-ring: #f6f8fb;
+  --dash-follow-text: #e53e3e;
+
+  --dash-text-primary: #0f172a;
+  --dash-text-secondary: rgba(15, 23, 42, 0.66);
+  --dash-text-muted: rgba(15, 23, 42, 0.45);
+  --dash-title-gradient: linear-gradient(135deg, #0f172a 0%, #334155 52%, #ff6b35 100%);
+
+  --dash-shadow-card: 0 22px 60px rgba(15, 23, 42, 0.1);
+  --dash-shadow-card-hover: 0 28px 80px rgba(15, 23, 42, 0.14);
+  --dash-shadow-panel: 18px 0 70px rgba(15, 23, 42, 0.08);
+  --dash-shadow-panel-mobile: 18px 0 60px rgba(15, 23, 42, 0.22);
+}
+
+/* ===== Dark theme ===== */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --dash-bg-app: #080808;
+  --dash-app-gradient:
+    radial-gradient(circle at 18% 12%, rgba(229, 62, 62, 0.18), transparent 32rem),
+    radial-gradient(circle at 88% 2%, rgba(255, 107, 53, 0.14), transparent 28rem),
+    radial-gradient(circle at 74% 84%, rgba(59, 130, 246, 0.09), transparent 34rem),
+    linear-gradient(135deg, #070707 0%, #111114 48%, #080808 100%);
+  --dash-bg-panel: rgba(14, 14, 16, 0.78);
+  --dash-bg-panel-strong: rgba(20, 20, 23, 0.92);
+  --dash-header-bg: rgba(8, 8, 9, 0.74);
+  --dash-bg-soft: rgba(255, 255, 255, 0.045);
+  --dash-bg-hover: rgba(255, 255, 255, 0.075);
+  --dash-bg-active: rgba(229, 62, 62, 0.14);
+  --dash-surface-1: rgba(255, 255, 255, 0.035);
+  --dash-surface-2: rgba(255, 255, 255, 0.055);
+  --dash-surface-3: rgba(255, 255, 255, 0.07);
+  --dash-card-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+  --dash-card-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 34%);
+  --dash-border: rgba(255, 255, 255, 0.09);
+  --dash-border-strong: rgba(255, 255, 255, 0.14);
+  --dash-grid-line: rgba(255, 255, 255, 0.025);
+  --dash-scrollbar: rgba(255, 255, 255, 0.16);
+  --dash-scrollbar-hover: rgba(255, 255, 255, 0.26);
+  --dash-scrim: rgba(0, 0, 0, 0.68);
+  --dash-badge-ring: #0b0b0c;
+  --dash-follow-text: #ff9a7c;
+
+  --dash-text-primary: #ffffff;
+  --dash-text-secondary: rgba(255, 255, 255, 0.68);
+  --dash-text-muted: rgba(255, 255, 255, 0.45);
+  --dash-title-gradient: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.78) 58%, rgba(255, 107, 53, 0.92) 100%);
+
+  --dash-shadow-card: 0 22px 60px rgba(0, 0, 0, 0.35);
+  --dash-shadow-card-hover: 0 28px 80px rgba(0, 0, 0, 0.42);
+  --dash-shadow-panel: 18px 0 70px rgba(0, 0, 0, 0.32);
+  --dash-shadow-panel-mobile: 18px 0 60px rgba(0, 0, 0, 0.62);
 }
 
 * {
@@ -68,12 +132,12 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--dash-scrollbar);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.26);
+  background: var(--dash-scrollbar-hover);
 }
 
 .dashboard {
@@ -83,11 +147,7 @@ button {
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: clip;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(229, 62, 62, 0.18), transparent 32rem),
-    radial-gradient(circle at 88% 2%, rgba(255, 107, 53, 0.14), transparent 28rem),
-    radial-gradient(circle at 74% 84%, rgba(59, 130, 246, 0.09), transparent 34rem),
-    linear-gradient(135deg, #070707 0%, #111114 48%, #080808 100%);
+  background: var(--dash-app-gradient);
   font-family: var(--dash-font);
   color: var(--dash-text-primary);
 }
@@ -98,10 +158,10 @@ button {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(var(--dash-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--dash-grid-line) 1px, transparent 1px);
   background-size: 44px 44px;
-  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.65), transparent 72%);
+  mask-image: radial-gradient(circle at center, var(--dash-scrim), transparent 72%);
 }
 
 .sidebar {
@@ -113,7 +173,7 @@ button {
   flex-direction: column;
   background: var(--dash-bg-panel-strong);
   border-right: 1px solid var(--dash-border);
-  box-shadow: 18px 0 70px rgba(0, 0, 0, 0.32);
+  box-shadow: var(--dash-shadow-panel);
   backdrop-filter: blur(24px) saturate(1.25);
   -webkit-backdrop-filter: blur(24px) saturate(1.25);
   transition: width var(--dash-transition), transform var(--dash-transition);
@@ -168,7 +228,8 @@ button {
 
 .sidebar-toggle,
 .mobile-menu-btn,
-.header-notification {
+.header-notification,
+.header-theme-toggle {
   border: 1px solid transparent;
   color: var(--dash-text-secondary);
   background: transparent;
@@ -187,9 +248,17 @@ button {
   flex: 0 0 44px;
 }
 
+.header-theme-toggle {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  position: relative;
+}
+
 .sidebar-toggle:hover,
 .mobile-menu-btn:hover,
-.header-notification:hover {
+.header-notification:hover,
+.header-theme-toggle:hover {
   color: var(--dash-text-primary);
   background: var(--dash-bg-hover);
   border-color: var(--dash-border);
@@ -383,7 +452,7 @@ button {
   justify-content: space-between;
   gap: 20px;
   padding: 14px clamp(20px, 3vw, 34px);
-  background: rgba(8, 8, 9, 0.74);
+  background: var(--dash-header-bg);
   border-bottom: 1px solid var(--dash-border);
   backdrop-filter: blur(22px) saturate(1.25);
   -webkit-backdrop-filter: blur(22px) saturate(1.25);
@@ -414,12 +483,12 @@ button {
   height: 46px;
   border: 1px solid var(--dash-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--dash-surface-1);
   transition: background var(--dash-transition), border-color var(--dash-transition), box-shadow var(--dash-transition);
 }
 
 .header-search:focus-within {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--dash-surface-3);
   border-color: rgba(229, 62, 62, 0.44);
   box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.1);
 }
@@ -464,7 +533,7 @@ button {
   height: 9px;
   border-radius: 999px;
   background: var(--dash-primary);
-  box-shadow: 0 0 0 3px #0b0b0c, 0 0 16px rgba(229, 62, 62, 0.65);
+  box-shadow: 0 0 0 3px var(--dash-badge-ring), 0 0 16px rgba(229, 62, 62, 0.65);
   color: transparent;
   overflow: hidden;
 }
@@ -489,7 +558,7 @@ button {
   line-height: 1.15;
   font-weight: 800;
   letter-spacing: -0.04em;
-  background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.78) 58%, rgba(255, 107, 53, 0.92) 100%);
+  background: var(--dash-title-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -514,7 +583,7 @@ button {
 .quick-actions {
   position: relative;
   border: 1px solid var(--dash-border);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+  background: var(--dash-card-gradient);
   box-shadow: var(--dash-shadow-card);
   backdrop-filter: blur(18px) saturate(1.18);
   -webkit-backdrop-filter: blur(18px) saturate(1.18);
@@ -528,7 +597,7 @@ button {
   inset: 0;
   pointer-events: none;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 34%);
+  background: var(--dash-card-sheen);
   opacity: 0.45;
 }
 
@@ -594,7 +663,7 @@ button {
   gap: 4px;
   padding: 5px 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--dash-surface-2);
   color: var(--dash-text-secondary);
   font-size: 0.76rem;
   font-weight: 700;
@@ -752,7 +821,7 @@ button {
   padding: 12px;
   border: 1px solid transparent;
   border-radius: var(--dash-radius-md);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--dash-surface-1);
   transition: background var(--dash-transition), border-color var(--dash-transition), transform var(--dash-transition);
 }
 
@@ -795,7 +864,7 @@ button {
   flex: 0 0 auto;
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--dash-surface-2);
   color: var(--dash-text-secondary);
   font-size: 0.76rem;
   font-weight: 800;
@@ -831,7 +900,7 @@ button {
   padding: 18px 14px;
   border: 1px solid var(--dash-border);
   border-radius: var(--dash-radius-lg);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--dash-surface-1);
   color: var(--dash-text-primary);
   cursor: pointer;
   transition: background var(--dash-transition), border-color var(--dash-transition), transform var(--dash-transition), box-shadow var(--dash-transition);
@@ -865,7 +934,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 99;
-  background: rgba(0, 0, 0, 0.68);
+  background: var(--dash-scrim);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   opacity: 0;
@@ -889,7 +958,7 @@ button {
   .dashboard-card:hover,
   .quick-actions:hover {
     border-color: var(--dash-border-strong);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+    box-shadow: var(--dash-shadow-card-hover);
   }
 
   .stat-card:hover,
@@ -904,14 +973,14 @@ button {
   }
 
   .activity-item:hover {
-    background: rgba(255, 255, 255, 0.065);
+    background: var(--dash-surface-3);
     border-color: var(--dash-border);
     transform: translateX(4px);
   }
 
   .action-card:hover {
     border-color: rgba(229, 62, 62, 0.32);
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--dash-surface-3);
     box-shadow: 0 18px 42px rgba(229, 62, 62, 0.12);
   }
 }
@@ -939,7 +1008,7 @@ button {
   .sidebar {
     width: min(86vw, 300px) !important;
     transform: translateX(-105%);
-    box-shadow: 18px 0 60px rgba(0, 0, 0, 0.62);
+    box-shadow: var(--dash-shadow-panel-mobile);
     animation: none;
   }
 
@@ -990,6 +1059,7 @@ button {
     gap: 8px;
   }
 
+  .header-theme-toggle,
   .header-notification,
   .header-avatar {
     width: 42px;

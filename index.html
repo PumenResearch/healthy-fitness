@@ -5,7 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Healthy Fitness - Đăng nhập để bắt đầu hành trình sức khỏe và thể hình của bạn" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#f2f4f8" />
+    <script>
+      // Apply persisted theme before paint to avoid a flash. Defaults to light.
+      (function () {
+        try {
+          var t = localStorage.getItem('hf-theme');
+          if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+      })();
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Healthy Fitness - Đăng Nhập</title>
