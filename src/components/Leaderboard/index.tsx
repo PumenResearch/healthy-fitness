@@ -71,8 +71,6 @@ export default function Leaderboard({ limit }: { limit?: number }) {
 
   const displayed = limit ? sorted.slice(0, limit) : sorted;
 
-  const currentUserRank = sorted.findIndex(u => u.isCurrentUser) + 1;
-  const currentUser = leaderboardUsers.find(u => u.isCurrentUser);
   const activeTab = metricTabs.find(t => t.id === activeMetric)!;
 
   const renderValue = (user: LeaderboardUser) =>

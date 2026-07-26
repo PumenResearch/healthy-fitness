@@ -264,12 +264,6 @@ const initialPosts: Post[] = [
   },
 ];
 
-const suggestedPeople = [
-  { id: 's1', name: 'Coach Phạm Khang', role: 'Huấn luyện viên cá nhân', avatar: 'PK', avatarColor: 'linear-gradient(135deg, #10b981, #059669)', followers: '12.4k' },
-  { id: 's2', name: 'Dinh dưỡng Thảo', role: 'Chuyên gia dinh dưỡng', avatar: 'NT', avatarColor: 'linear-gradient(135deg, #8b5cf6, #ec4899)', followers: '8.7k' },
-  { id: 's3', name: 'Runner Gia Huy', role: 'VĐV chạy marathon', avatar: 'GH', avatarColor: 'linear-gradient(135deg, #3b82f6, #6366f1)', followers: '6.1k' },
-];
-
 const filters = [
   { id: 'all', label: 'Tất cả' },
   { id: 'workout', label: 'Tập luyện' },

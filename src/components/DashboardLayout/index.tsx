@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import '../../pages/DashboardPage/Dashboard.css';
 
 type Theme = 'light' | 'dark';
@@ -64,6 +65,7 @@ export default function DashboardLayout() {
     return 'light';
   });
   const location = useLocation();
+  const { profile, signOut } = useAuth();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -125,11 +127,15 @@ export default function DashboardLayout() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-avatar">NT</div>
+          <div className="user-avatar" style={profile?.avatar_color ? { backgroundColor: profile.avatar_color } : undefined}>
+            {profile?.avatar_text ?? 'U'}
+          </div>
           {!sidebarCollapsed && (
             <div className="user-info">
-              <span className="user-name">Nguyễn Thành</span>
-              <span className="user-role">Premium Member</span>
+              <span className="user-name">{profile?.name ?? 'User'}</span>
+              <button className="user-role" onClick={signOut} style={{ cursor: 'pointer', border: 'none', background: 'none', color: 'inherit', padding: 0, font: 'inherit' }}>
+                Đăng xuất
+              </button>
             </div>
           )}
         </div>
@@ -178,7 +184,9 @@ export default function DashboardLayout() {
               </svg>
               <span className="notification-badge" aria-label="3 thông báo mới">3</span>
             </button>
-            <div className="header-avatar">NT</div>
+            <div className="header-avatar" style={profile?.avatar_color ? { backgroundColor: profile.avatar_color } : undefined}>
+              {profile?.avatar_text ?? 'U'}
+            </div>
           </div>
         </header>
 

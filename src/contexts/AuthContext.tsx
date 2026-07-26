@@ -1,0 +1,121 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { supabase } from '../lib/supabase'
+import type { Session, User } from '@supabase/supabase-js'
+
+export interface Profile {
+  id: string
+  name: string
+  avatar_text: string
+  avatar_color: string
+  streak: number
+  score: number
+  created_at: string
+}
+
+interface AuthContextType {
+  session: Session | null
+  user: User | null
+  profile: Profile | null
+  loading: boolean
+  isNewUser: boolean
+  signInWithGoogle: () => Promise<void>
+  signOut: () => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+async function fetchProfile(userId: string): Promise<Profile | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  if (error) return null
+  return data
+}
+
+async function fetchProfileWithRetry(userId: string, maxRetries = 5): Promise<Profile | null> {
+  for (let i = 0; i < maxRetries; i++) {
+    const profile = await fetchProfile(userId)
+    if (profile) return profile
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+  return null
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [isNewUser, setIsNewUser] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        fetchProfileWithRetry(session.user.id).then(p => {
+          setProfile(p)
+          if (p) {
+            const createdAt = new Date(p.created_at).getTime()
+            setIsNewUser(Date.now() - createdAt < 10000)
+          }
+          setLoading(false)
+        })
+      } else {
+        setLoading(false)
+      }
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          const p = await fetchProfileWithRetry(session.user.id)
+          setProfile(p)
+          if (p) {
+            const createdAt = new Date(p.created_at).getTime()
+            setIsNewUser(Date.now() - createdAt < 10000)
+          }
+        } else {
+          setProfile(null)
+          setIsNewUser(false)
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const signInWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+  }
+
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    setSession(null)
+    setUser(null)
+    setProfile(null)
+    setIsNewUser(false)
+  }
+
+  return (
+    <AuthContext.Provider value={{ session, user, profile, loading, isNewUser, signInWithGoogle, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (!context) throw new Error('useAuth must be used within AuthProvider')
+  return context
+}
