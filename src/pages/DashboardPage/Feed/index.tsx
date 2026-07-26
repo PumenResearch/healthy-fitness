@@ -128,14 +128,6 @@ const initialPosts: Post[] = [
   },
 ];
 
-const trendingTopics = [
-  { id: 't1', tag: '#ChayBo10km', count: '1,2k bài đăng' },
-  { id: 't2', tag: '#EatClean', count: '980 bài đăng' },
-  { id: 't3', tag: '#Plank30Ngay', count: '640 bài đăng' },
-  { id: 't4', tag: '#PushPullLegs', count: '512 bài đăng' },
-  { id: 't5', tag: '#YogaBuoiChieu', count: '388 bài đăng' },
-];
-
 const suggestedPeople = [
   { id: 's1', name: 'Coach Phạm Khang', role: 'Huấn luyện viên cá nhân', avatar: 'PK', avatarColor: 'linear-gradient(135deg, #10b981, #059669)', followers: '12.4k' },
   { id: 's2', name: 'Dinh dưỡng Thảo', role: 'Chuyên gia dinh dưỡng', avatar: 'NT', avatarColor: 'linear-gradient(135deg, #8b5cf6, #ec4899)', followers: '8.7k' },
@@ -144,17 +136,8 @@ const suggestedPeople = [
 
 const filters = [
   { id: 'all', label: 'Tất cả' },
-  { id: 'following', label: 'Đang theo dõi' },
   { id: 'workout', label: 'Tập luyện' },
-  { id: 'nutrition', label: 'Dinh dưỡng' },
-  { id: 'challenge', label: 'Thử thách' },
-];
-
-const composeShortcuts = [
-  { id: 'workout', label: 'Chia sẻ buổi tập', emoji: '💪', color: '#e53e3e' },
-  { id: 'meal', label: 'Đăng bữa ăn', emoji: '🥗', color: '#10b981' },
-  { id: 'pr', label: 'Kỷ lục mới', emoji: '🏆', color: '#f59e0b' },
-  { id: 'question', label: 'Hỏi đáp', emoji: '💬', color: '#3b82f6' },
+  { id: 'food', label: 'Ăn uống' },
 ];
 
 export default function Feed() {
@@ -224,17 +207,22 @@ export default function Feed() {
           <h1 className="welcome-title">Bảng tin</h1>
           <p className="welcome-subtitle">Cập nhật hoạt động từ cộng đồng Healthy Fitness</p>
         </div>
-        <button className="feed-new-post-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Đăng bài
-        </button>
       </div>
 
       <div className="feed-layout">
         <div className="feed-main">
+          <div className="feed-composer dashboard-card">
+            <div className="composer-avatar">NT</div>
+            <button className="composer-input">Bạn vừa tập gì hôm nay?</button>
+            <button className="feed-new-post-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Đăng bài
+            </button>
+          </div>
+
           <div className="feed-filters">
             {filters.map(f => (
               <button
@@ -243,19 +231,6 @@ export default function Feed() {
                 onClick={() => setActiveFilter(f.id)}
               >
                 {f.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="feed-composer dashboard-card">
-            <div className="composer-avatar">NT</div>
-            <button className="composer-input">Bạn vừa tập gì hôm nay?</button>
-          </div>
-          <div className="composer-shortcuts">
-            {composeShortcuts.map(s => (
-              <button key={s.id} className="composer-shortcut">
-                <span className="shortcut-emoji" style={{ background: `${s.color}22`, color: s.color }}>{s.emoji}</span>
-                {s.label}
               </button>
             ))}
           </div>
@@ -282,18 +257,6 @@ export default function Feed() {
 
         <aside className="feed-sidebar">
           <Leaderboard />
-
-          <section className="dashboard-card sidebar-card">
-            <h2 className="card-title sidebar-card-title">Chủ đề nổi bật</h2>
-            <ul className="trending-list">
-              {trendingTopics.map(t => (
-                <li key={t.id} className="trending-item">
-                  <span className="trending-tag">{t.tag}</span>
-                  <span className="trending-count">{t.count}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
 
           <section className="dashboard-card sidebar-card">
             <h2 className="card-title sidebar-card-title">Gợi ý theo dõi</h2>
