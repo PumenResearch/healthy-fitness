@@ -62,12 +62,14 @@ const medals: ReactNode[] = [medalIcon, medalIcon, medalIcon];
 
 const formatScore = (value: number) => value.toLocaleString('vi-VN');
 
-export default function Leaderboard() {
+export default function Leaderboard({ limit }: { limit?: number }) {
   const [activeMetric, setActiveMetric] = useState<RankMetric>('streak');
 
   const sorted = [...leaderboardUsers].sort((a, b) =>
     activeMetric === 'streak' ? b.streak - a.streak : b.score - a.score
   );
+
+  const displayed = limit ? sorted.slice(0, limit) : sorted;
 
   const currentUserRank = sorted.findIndex(u => u.isCurrentUser) + 1;
   const currentUser = leaderboardUsers.find(u => u.isCurrentUser);
@@ -100,7 +102,7 @@ export default function Leaderboard() {
       </div>
 
       <ol className="leaderboard-list">
-        {sorted.map((user, index) => {
+        {displayed.map((user, index) => {
           const rank = index + 1;
           const isTop3 = rank <= 3;
           return (
@@ -117,7 +119,6 @@ export default function Leaderboard() {
               <div className="leaderboard-info">
                 <span className="leaderboard-name">
                   {user.name}
-                  {user.isCurrentUser && <span className="leaderboard-you">Bạn</span>}
                 </span>
                 <span className="leaderboard-sub">
                   {activeMetric === 'streak'
@@ -134,26 +135,6 @@ export default function Leaderboard() {
         })}
       </ol>
 
-      {currentUser && currentUserRank > 3 && (
-        <div className="leaderboard-self">
-          <span className="leaderboard-self-rank">#{currentUserRank}</span>
-          <div className="leaderboard-avatar leaderboard-avatar--sm" style={{ background: currentUser.avatarColor }}>
-            {currentUser.avatar}
-          </div>
-          <div className="leaderboard-self-info">
-            <span className="leaderboard-self-name">Vị trí của bạn</span>
-            <span className="leaderboard-self-sub">
-              {activeMetric === 'streak'
-                ? `${currentUser.streak} ngày · ${formatScore(currentUser.score)} điểm`
-                : `${formatScore(currentUser.score)} điểm · ${currentUser.streak} ngày`}
-            </span>
-          </div>
-          <div className="leaderboard-value">
-            <span className="leaderboard-value-num">{renderValue(currentUser)}</span>
-            <span className="leaderboard-value-unit">{activeTab.unit}</span>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

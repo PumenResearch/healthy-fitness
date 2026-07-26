@@ -15,7 +15,7 @@ export type Post = {
   avatar: string;
   avatarColor: string;
   time: string;
-  category: { label: string; color: string };
+  category: { label: string; color: string; type: 'workout' | 'category' };
   title: string;
   body: string;
   hasImage?: boolean;
@@ -32,4 +32,5 @@ export type Post = {
   topReaction: ReactionKey;
   comments: Comment[];
   streak: number;
+  score?: number;
 };

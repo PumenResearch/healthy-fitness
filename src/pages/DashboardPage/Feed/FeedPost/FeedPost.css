@@ -205,7 +205,7 @@
   align-items: center;
 }
 
-.reaction-stack-emoji {
+.reaction-stack-icon {
   width: 22px;
   height: 22px;
   display: grid;
@@ -213,11 +213,15 @@
   border-radius: 50%;
   background: var(--dash-bg-panel-strong);
   border: 2px solid var(--dash-bg-panel-strong);
-  font-size: 0.72rem;
-  line-height: 1;
+  line-height: 0;
 }
 
-.reaction-stack-emoji + .reaction-stack-emoji {
+.reaction-stack-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.reaction-stack-icon + .reaction-stack-icon {
   margin-left: -7px;
 }
 
@@ -233,12 +237,17 @@
 /* ===== Post actions ===== */
 .post-actions {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
 }
 
 .reaction-wrap {
   position: relative;
+  display: flex;
+}
+
+.reaction-wrap > .post-action {
+  flex: 1;
 }
 
 .post-action {
@@ -258,8 +267,8 @@
 }
 
 .post-action svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .post-action:hover {
@@ -271,9 +280,19 @@
   background: var(--dash-surface-2);
 }
 
-.action-emoji {
-  font-size: 1rem;
-  line-height: 1;
+.action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  line-height: 0;
+  flex: 0 0 16px;
+}
+
+.action-icon svg {
+  width: 16px !important;
+  height: 16px !important;
 }
 
 /* ===== Reaction picker ===== */
@@ -283,8 +302,8 @@
   left: 0;
   z-index: 20;
   display: flex;
-  gap: 4px;
-  padding: 8px;
+  gap: 2px;
+  padding: 6px;
   border: 1px solid var(--dash-border-strong);
   border-radius: 999px;
   background: var(--dash-bg-panel-strong);
@@ -295,33 +314,28 @@
 }
 
 .reaction-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 8px;
+  display: grid;
+  place-items: center;
+  padding: 4px;
   border: 0;
-  border-radius: 999px;
   background: transparent;
-  color: var(--dash-text-secondary);
   cursor: pointer;
-  transition: background var(--dash-transition), transform var(--dash-transition);
+  transition: transform var(--dash-transition);
 }
 
 .reaction-option:hover {
-  background: var(--dash-bg-hover);
-  transform: translateY(-3px) scale(1.05);
+  transform: scale(1.3);
 }
 
-.reaction-option-emoji {
-  font-size: 1.5rem;
-  line-height: 1;
+.reaction-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.reaction-option-label {
-  font-size: 0.62rem;
-  font-weight: 700;
-  white-space: nowrap;
+.reaction-option-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* ===== Comments ===== */
@@ -622,11 +636,365 @@
   100% { background-position: 300% 50%; }
 }
 
+/* ===== Score Tag (Kiếm hiệp tiers) ===== */
+.score-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: transform var(--dash-transition), box-shadow var(--dash-transition);
+}
+
+.score-tag-icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.score-tag-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bậc 1 — Phàm Nhân (0-99) */
+.score-tag--pham-nhan {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+/* Bậc 2 — Luyện Khí (100-249) */
+.score-tag--luyen-khi {
+  color: #a3e635;
+  background: rgba(163, 230, 53, 0.12);
+  border-color: rgba(163, 230, 53, 0.22);
+  box-shadow: 0 0 8px rgba(163, 230, 53, 0.18);
+}
+
+[data-theme='dark'] .score-tag--luyen-khi {
+  box-shadow: 0 0 12px rgba(163, 230, 53, 0.28);
+}
+
+/* Bậc 3 — Trúc Cơ (250-499) */
+.score-tag--truc-co {
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.12);
+  border-color: rgba(34, 211, 238, 0.22);
+  animation: scorePulse 2.2s ease-in-out infinite;
+}
+
+@keyframes scorePulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(34, 211, 238, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(34, 211, 238, 0.45); }
+}
+
+/* Bậc 4 — Kim Đan (500-999) */
+.score-tag--kim-dan {
+  color: #fbbf24;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.16), rgba(251, 191, 36, 0.06));
+  border-color: rgba(251, 191, 36, 0.28);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.25);
+}
+
+.score-tag--kim-dan::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+  animation: scoreShimmer 3s ease-in-out infinite;
+}
+
+@keyframes scoreShimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* Bậc 5 — Nguyên Anh (1000-1999) */
+.score-tag--nguyen-anh {
+  color: #38bdf8;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(99, 102, 241, 0.12));
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  animation: scoreNguyenAnhGlow 2.5s ease-in-out infinite;
+}
+
+.score-tag--nguyen-anh::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent);
+  animation: scoreShimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes scoreNguyenAnhGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(56, 189, 248, 0.3); }
+  50% { box-shadow: 0 0 22px rgba(56, 189, 248, 0.5), 0 0 36px rgba(99, 102, 241, 0.15); }
+}
+
+/* Bậc 6 — Hóa Thần (2000-3499) */
+.score-tag--hoa-than {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(99, 102, 241, 0.85));
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 14px rgba(139, 92, 246, 0.35), 0 0 30px rgba(99, 102, 241, 0.15);
+  animation: scoreHoaThanGlow 2.5s ease-in-out infinite;
+}
+
+.score-tag--hoa-than::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: scoreShimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes scoreHoaThanGlow {
+  0%, 100% { box-shadow: 0 0 14px rgba(139, 92, 246, 0.35), 0 0 30px rgba(99, 102, 241, 0.15); }
+  50% { box-shadow: 0 0 22px rgba(139, 92, 246, 0.55), 0 0 44px rgba(99, 102, 241, 0.25); }
+}
+
+/* Bậc 7 — Luyện Hư (3500-5499) */
+.score-tag--luyen-hu {
+  color: #fff;
+  background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
+  background-size: 200% 200%;
+  border-color: rgba(14, 165, 233, 0.5);
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.4), 0 0 36px rgba(139, 92, 246, 0.2);
+  animation: scoreLuyenHuBg 4s ease-in-out infinite, scoreLuyenHuGlow 3s ease-in-out infinite;
+}
+
+.score-tag--luyen-hu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: scoreShimmer 2s ease-in-out infinite;
+}
+
+@keyframes scoreLuyenHuBg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes scoreLuyenHuGlow {
+  0%, 100% { box-shadow: 0 0 16px rgba(14, 165, 233, 0.4), 0 0 36px rgba(139, 92, 246, 0.2); }
+  50% { box-shadow: 0 0 24px rgba(14, 165, 233, 0.6), 0 0 48px rgba(139, 92, 246, 0.3); }
+}
+
+/* Bậc 8 — Đại Thừa (5500-7999) */
+.score-tag--dai-thua {
+  color: #fff;
+  background: linear-gradient(135deg, #f59e0b, #ef4444, #ec4899);
+  background-size: 200% 200%;
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow:
+    0 0 18px rgba(245, 158, 11, 0.4),
+    0 0 40px rgba(239, 68, 68, 0.2),
+    0 0 60px rgba(236, 72, 153, 0.1);
+  animation:
+    scoreDaiThuaBg 3.5s ease-in-out infinite,
+    scoreDaiThuaGlow 3s ease-in-out infinite;
+}
+
+.score-tag--dai-thua::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: scoreShimmer 2s ease-in-out infinite;
+}
+
+@keyframes scoreDaiThuaBg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes scoreDaiThuaGlow {
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.4), 0 0 40px rgba(239, 68, 68, 0.2);
+  }
+  33% {
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.5), 0 0 50px rgba(236, 72, 153, 0.25);
+  }
+  66% {
+    box-shadow: 0 0 24px rgba(236, 72, 153, 0.45), 0 0 50px rgba(245, 158, 11, 0.2);
+  }
+}
+
+/* Bậc 9 — Độ Kiếp (8000-9499) */
+.score-tag--do-kiep {
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #06b6d4, #10b981, #6366f1);
+  background-size: 300% 300%;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.45),
+    0 0 44px rgba(6, 182, 212, 0.2),
+    0 0 66px rgba(16, 185, 129, 0.1);
+  animation:
+    scoreDoKiepBg 3s ease-in-out infinite,
+    scoreDoKiepGlow 2.5s ease-in-out infinite;
+}
+
+.score-tag--do-kiep::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: scoreShimmer 1.8s ease-in-out infinite;
+}
+
+.score-tag--do-kiep::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #6366f1, #06b6d4, #10b981, #6366f1);
+  background-size: 300% 300%;
+  animation: scoreDoKiepBorder 3s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+
+@keyframes scoreDoKiepBg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes scoreDoKiepGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.45), 0 0 44px rgba(6, 182, 212, 0.2);
+  }
+  33% {
+    box-shadow: 0 0 26px rgba(6, 182, 212, 0.5), 0 0 52px rgba(16, 185, 129, 0.25);
+  }
+  66% {
+    box-shadow: 0 0 26px rgba(16, 185, 129, 0.45), 0 0 52px rgba(99, 102, 241, 0.2);
+  }
+}
+
+@keyframes scoreDoKiepBorder {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* Bậc 10 — Tiên Nhân (9500+) */
+.score-tag--tien-nhan {
+  color: #fff;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #fff, #fbbf24, #f59e0b);
+  background-size: 400% 400%;
+  border-color: rgba(251, 191, 36, 0.6);
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+  box-shadow:
+    0 0 24px rgba(251, 191, 36, 0.5),
+    0 0 50px rgba(245, 158, 11, 0.3),
+    0 0 80px rgba(251, 191, 36, 0.15);
+  animation:
+    scoreTienNhanBg 3s ease-in-out infinite,
+    scoreTienNhanGlow 2s ease-in-out infinite;
+}
+
+.score-tag--tien-nhan .score-tag-value,
+.score-tag--tien-nhan .score-tag-label {
+  background: linear-gradient(135deg, #fff 30%, #fde68a 50%, #fff 70%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: scoreTienNhanText 2.5s ease-in-out infinite;
+}
+
+.score-tag--tien-nhan::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: scoreShimmer 1.5s ease-in-out infinite;
+}
+
+.score-tag--tien-nhan::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #fde68a, #fbbf24, #f59e0b);
+  background-size: 400% 400%;
+  animation: scoreTienNhanBorder 2.5s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  padding: 1.5px;
+}
+
+@keyframes scoreTienNhanBg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes scoreTienNhanGlow {
+  0%, 100% {
+    box-shadow: 0 0 24px rgba(251, 191, 36, 0.5), 0 0 50px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 36px rgba(251, 191, 36, 0.7), 0 0 70px rgba(245, 158, 11, 0.4), 0 0 100px rgba(251, 191, 36, 0.2);
+  }
+}
+
+@keyframes scoreTienNhanText {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes scoreTienNhanBorder {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
 /* ===== Reduced motion ===== */
 @media (prefers-reduced-motion: reduce) {
   .streak-tag,
   .streak-tag::before,
-  .streak-tag::after {
+  .streak-tag::after,
+  .score-tag,
+  .score-tag::before,
+  .score-tag::after,
+  .score-tag .score-tag-value,
+  .score-tag .score-tag-label {
     animation: none !important;
   }
 }

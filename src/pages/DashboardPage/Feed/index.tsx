@@ -11,7 +11,7 @@ const initialPosts: Post[] = [
     avatar: 'MA',
     avatarColor: 'linear-gradient(135deg, #e53e3e, #ff6b35)',
     time: '15 phút trước',
-    category: { label: 'Chạy bộ', color: '#10b981' },
+    category: { label: 'Chạy bộ', color: '#10b981', type: 'workout' },
     title: 'Vừa phá kỷ lục cá nhân! 🏃‍♀️',
     body: 'Sáng nay mình chạy 10km trong 52 phút, nhanh hơn kỷ lục cũ 4 phút. Cảm giác xé gió lúc về đích thật sự tuyệt vời. Các bạn có ai đang rèn chạy bộ dài không?',
     hasImage: true,
@@ -33,7 +33,7 @@ const initialPosts: Post[] = [
     avatar: 'GH',
     avatarColor: 'linear-gradient(135deg, #3b82f6, #6366f1)',
     time: '1 giờ trước',
-    category: { label: 'Tập tạ', color: '#e53e3e' },
+    category: { label: 'Tập tạ', color: '#e53e3e', type: 'workout' },
     title: 'Push Day hoàn thành 💪',
     body: 'Hôm nay đẩy tạ ngực 80kg x 6 rep, lên được 5kg so với tuần trước. Quá trình tăng tiến chậm mà đều đặn mới là bền vững. Ai cùng đội push/pull/legs không?',
     hasImage: true,
@@ -50,43 +50,179 @@ const initialPosts: Post[] = [
   },
   {
     id: 'post-3',
-    author: 'Võ Thảo Nguyên',
-    avatar: 'TN',
-    avatarColor: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-    time: '3 giờ trước',
-    category: { label: 'Dinh dưỡng', color: '#f59e0b' },
-    title: 'Bữa trưa năng lượng 🥗',
-    body: 'Combo gà xé phở healthy: ức gà 180g, rau xào ít dầu, cơm lứt 1 chén. Đạm 42g, carbs 55g, chỉ 480 kcal mà no đến chiều. Mình sẽ đăng công thức chi tiết lên mục Dinh dưỡng nhé.',
-    hasImage: true,
-    imageGradient: 'linear-gradient(135deg, #f59e0b 0%, #84cc16 60%, #10b981 100%)',
-    imageEmoji: '🥗',
-    metrics: { calories: '480 kcal', duration: 'Đạm 42g' },
-    stats: { likes: 211, comments: 37, shares: 22 },
-    reactions: { like: 80, love: 60, fire: 14, clap: 57 },
+    author: 'Trương Vô Kỵ',
+    avatar: 'VK',
+    avatarColor: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+    time: '1 giờ trước',
+    category: { label: 'Thử thách', color: '#8b5cf6', type: 'category' },
+    title: 'Hoàn thành Cửu Dương Thần Công 🌅',
+    body: 'Sau 1 năm kiên trì, mình đã hoàn thành toàn bộ thử thách Cửu Dương với 9,800 điểm. Con đường tu luyện dài nhưng đáng giá từng giọt mồ hôi!',
+    metrics: { duration: '365 ngày', calories: '98,000 kcal' },
+    stats: { likes: 542, comments: 89, shares: 45 },
+    reactions: { like: 120, love: 180, fire: 150, clap: 92 },
     topReaction: 'love',
-    streak: 24,
-    comments: [
-      { id: 'c4', author: 'Lê Minh Anh', avatar: 'MA', avatarColor: 'linear-gradient(135deg, #e53e3e, #ff6b35)', text: 'Đẹp mắt lại đủ chất, xin ngay công thức ạ 🙏', time: '2 giờ trước' },
-      { id: 'c5', author: 'Bùi Đức', avatar: 'BD', avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)', text: 'Cơm lứt vs cơm trắng thì khác nhau thế nào nhỉ?', time: '1 giờ trước' },
-    ],
+    streak: 0,
+    score: 9800,
+    comments: [],
   },
   {
     id: 'post-4',
-    author: 'Đặng Quốc Bảo',
-    avatar: 'QB',
-    avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+    author: 'Lệnh Hồ Xung',
+    avatar: 'HX',
+    avatarColor: 'linear-gradient(135deg, #6366f1, #06b6d4)',
+    time: '2 giờ trước',
+    category: { label: 'Thử thách', color: '#8b5cf6', type: 'category' },
+    title: 'Độc Cô Cửu Kiếm - Thức thứ 9 ⚔️',
+    body: 'Vượt qua thử thách 100 ngày HIIT không nghỉ. Kiếp nạn cuối cùng đã qua, chỉ còn chờ phi thăng thôi!',
+    metrics: { duration: '100 ngày', calories: '52,000 kcal' },
+    stats: { likes: 389, comments: 67, shares: 32 },
+    reactions: { like: 100, love: 120, fire: 110, clap: 59 },
+    topReaction: 'love',
+    streak: 0,
+    score: 8500,
+    comments: [],
+  },
+  {
+    id: 'post-5a',
+    author: 'Quách Tĩnh',
+    avatar: 'QT',
+    avatarColor: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+    time: '3 giờ trước',
+    category: { label: 'Dinh dưỡng', color: '#f59e0b', type: 'category' },
+    title: 'Thực đơn Hàng Long Thập Bát Chưởng 🐉',
+    body: 'Chế độ ăn 6 bữa/ngày, 3,200 kcal, macro cân bằng hoàn hảo. Tích lũy đủ 6,800 điểm dinh dưỡng trong 8 tháng!',
+    hasImage: true,
+    imageGradient: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 60%, #ec4899 100%)',
+    imageEmoji: '🐉',
+    metrics: { calories: '3,200 kcal', duration: 'Đạm 185g' },
+    stats: { likes: 298, comments: 45, shares: 28 },
+    reactions: { like: 90, love: 100, fire: 68, clap: 40 },
+    topReaction: 'love',
+    streak: 0,
+    score: 6800,
+    comments: [],
+  },
+  {
+    id: 'post-5b',
+    author: 'Dương Quá',
+    avatar: 'DQ',
+    avatarColor: 'linear-gradient(135deg, #0ea5e9, #8b5cf6)',
+    time: '4 giờ trước',
+    category: { label: 'Thử thách', color: '#8b5cf6', type: 'category' },
+    title: 'Ngọc Nữ Tâm Kinh - Luyện Hư cảnh 🌀',
+    body: 'Hoàn thành 60 ngày meditation + cold exposure liên tiếp. Cảm giác vượt qua giới hạn bản thân, chạm vào hư không!',
+    metrics: { duration: '60 ngày', calories: '18,000 kcal' },
+    stats: { likes: 245, comments: 38, shares: 19 },
+    reactions: { like: 80, love: 75, fire: 55, clap: 35 },
+    topReaction: 'like',
+    streak: 0,
+    score: 4200,
+    comments: [],
+  },
+  {
+    id: 'post-5c',
+    author: 'Trương Tam Phong',
+    avatar: 'TP',
+    avatarColor: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+    time: '5 giờ trước',
+    category: { label: 'Dinh dưỡng', color: '#f59e0b', type: 'category' },
+    title: 'Thái Cực quyền dinh dưỡng ☯️',
+    body: 'Cân bằng âm dương trong chế độ ăn: 50% thực vật, 30% protein, 20% healthy fats. Đã duy trì 4 tháng liên tục, đạt Hóa Thần!',
+    metrics: { calories: '2,100 kcal', duration: 'Đạm 120g' },
+    stats: { likes: 187, comments: 29, shares: 15 },
+    reactions: { like: 60, love: 65, fire: 32, clap: 30 },
+    topReaction: 'love',
+    streak: 0,
+    score: 2600,
+    comments: [],
+  },
+  {
+    id: 'post-5d',
+    author: 'Tiểu Long Nữ',
+    avatar: 'LN',
+    avatarColor: 'linear-gradient(135deg, #38bdf8, #6366f1)',
+    time: '6 giờ trước',
+    category: { label: 'Thử thách', color: '#8b5cf6', type: 'category' },
+    title: 'Thử thách Ngọc Phong 30 ngày 💎',
+    body: 'Vượt qua 30 ngày clean eating + intermittent fasting 16:8. Nguyên Anh đã thành, tiếp tục con đường tu luyện!',
+    metrics: { duration: '30 ngày', calories: '1,800 kcal/ngày' },
+    stats: { likes: 156, comments: 22, shares: 11 },
+    reactions: { like: 55, love: 50, fire: 28, clap: 23 },
+    topReaction: 'like',
+    streak: 0,
+    score: 1500,
+    comments: [],
+  },
+  {
+    id: 'post-5e',
+    author: 'Đoàn Dự',
+    avatar: 'DD',
+    avatarColor: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+    time: '8 giờ trước',
+    category: { label: 'Dinh dưỡng', color: '#f59e0b', type: 'category' },
+    title: 'Lục Mạch Thần Kiếm dinh dưỡng 🗡️',
+    body: 'Kết đan thành công! Meal prep 6 bữa chuẩn macro trong 2 tháng, đạt 720 điểm. Kim Đan đã thành, tiếp tục luyện!',
+    hasImage: true,
+    imageGradient: 'linear-gradient(135deg, #fbbf24 0%, #84cc16 60%, #10b981 100%)',
+    imageEmoji: '🗡️',
+    metrics: { calories: '2,400 kcal', duration: 'Đạm 150g' },
+    stats: { likes: 98, comments: 16, shares: 7 },
+    reactions: { like: 40, love: 28, fire: 18, clap: 12 },
+    topReaction: 'like',
+    streak: 0,
+    score: 720,
+    comments: [],
+  },
+  {
+    id: 'post-5f',
+    author: 'Hư Trúc',
+    avatar: 'HT',
+    avatarColor: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
+    time: '10 giờ trước',
+    category: { label: 'Thử thách', color: '#8b5cf6', type: 'category' },
+    title: 'Thiên Sơn Lục Dương Chưởng 🏔️',
+    body: 'Xây nền tảng vững chắc với 3 tuần tập core + flexibility mỗi ngày. Trúc Cơ đã thành, cảm giác cơ thể khác hẳn!',
+    metrics: { duration: '21 ngày', calories: '8,400 kcal' },
+    stats: { likes: 72, comments: 11, shares: 4 },
+    reactions: { like: 30, love: 20, fire: 14, clap: 8 },
+    topReaction: 'like',
+    streak: 0,
+    score: 380,
+    comments: [],
+  },
+  {
+    id: 'post-5g',
+    author: 'Vi Tiểu Bảo',
+    avatar: 'VB',
+    avatarColor: 'linear-gradient(135deg, #a3e635, #84cc16)',
+    time: '12 giờ trước',
+    category: { label: 'Dinh dưỡng', color: '#f59e0b', type: 'category' },
+    title: 'Bắt đầu Luyện Khí với meal prep 🍱',
+    body: 'Tuần đầu tiên chuẩn bị bữa ăn theo công thức healthy. Mới 150 điểm thôi nhưng đã thấy khác biệt rõ ràng!',
+    metrics: { calories: '1,900 kcal', duration: 'Đạm 95g' },
+    stats: { likes: 45, comments: 8, shares: 2 },
+    reactions: { like: 22, love: 12, fire: 6, clap: 5 },
+    topReaction: 'like',
+    streak: 0,
+    score: 150,
+    comments: [],
+  },
+  {
+    id: 'post-5h',
+    author: 'Lâm Bình Chi',
+    avatar: 'BC',
+    avatarColor: 'linear-gradient(135deg, #94a3b8, #64748b)',
     time: 'Hôm qua',
-    category: { label: 'Thử thách', color: '#8b5cf6' },
-    title: 'Thử thách 30 ngày plank ✨',
-    body: 'Mình vừa hoàn thành thử thách plank 30 ngày, từ 30 giây lên 3 phút 20 giây. Ai muốn tham gia đợt sau (khởi đầu đầu tháng sau) thì comment "tham gia" nhé, mình sẽ tạo nhóm nhắc nhở.',
-    metrics: { duration: '30 ngày', calories: 'PB 3:20' },
-    stats: { likes: 174, comments: 56, shares: 14 },
-    reactions: { like: 70, love: 30, fire: 24, clap: 50 },
-    topReaction: 'clap',
-    streak: 10,
-    comments: [
-      { id: 'c6', author: 'Nguyễn Thành', avatar: 'NT', avatarColor: 'linear-gradient(135deg, #e53e3e, #ff6b35)', text: 'Tham gia! Đang muốn rèn core lại', time: '20 giờ trước' },
-    ],
+    category: { label: 'Dinh dưỡng', color: '#f59e0b', type: 'category' },
+    title: 'Ngày đầu bước vào giang hồ 🌿',
+    body: 'Mới tham gia cộng đồng, đăng bữa ăn đầu tiên. Phàm Nhân khởi đầu, hy vọng sớm Luyện Khí thành công!',
+    metrics: { calories: '1,600 kcal' },
+    stats: { likes: 28, comments: 5, shares: 1 },
+    reactions: { like: 15, love: 8, fire: 3, clap: 2 },
+    topReaction: 'like',
+    streak: 0,
+    score: 45,
+    comments: [],
   },
   {
     id: 'post-5',
@@ -94,7 +230,7 @@ const initialPosts: Post[] = [
     avatar: 'MT',
     avatarColor: 'linear-gradient(135deg, #ec4899, #f43f5e)',
     time: '2 ngày trước',
-    category: { label: 'Yoga', color: '#10b981' },
+    category: { label: 'Yoga', color: '#10b981', type: 'workout' },
     title: 'Phiên yoga chiều thư giãn 🧘',
     body: 'Sau một ngày ngồi văn phòng, 40 phút yoga stretching giúp lưng và vai nhẹ hẳn. Tập trung vào hít thở và kéo giãn cột sống. Gợi ý: cuối giờ tập tư thế savasana 5 phút để hạ nhiệt.',
     hasImage: true,
@@ -113,7 +249,7 @@ const initialPosts: Post[] = [
     avatar: 'TH',
     avatarColor: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
     time: '3 ngày trước',
-    category: { label: 'Chạy bộ', color: '#10b981' },
+    category: { label: 'Chạy bộ', color: '#10b981', type: 'workout' },
     title: 'Ngày đầu tiên chạy bộ 🏃',
     body: 'Hôm nay là lần đầu mình ra công viên chạy bộ sau mấy năm không tập. Chỉ chạy được 2km thôi nhưng cảm giác rất phấn khích. Hy vọng sẽ duy trì được lâu dài!',
     hasImage: true,
@@ -126,20 +262,6 @@ const initialPosts: Post[] = [
     streak: 1,
     comments: [],
   },
-];
-
-const trendingTopics = [
-  { id: 't1', tag: '#ChayBo10km', count: '1,2k bài đăng' },
-  { id: 't2', tag: '#EatClean', count: '980 bài đăng' },
-  { id: 't3', tag: '#Plank30Ngay', count: '640 bài đăng' },
-  { id: 't4', tag: '#PushPullLegs', count: '512 bài đăng' },
-  { id: 't5', tag: '#YogaBuoiChieu', count: '388 bài đăng' },
-];
-
-const suggestedPeople = [
-  { id: 's1', name: 'Coach Phạm Khang', role: 'Huấn luyện viên cá nhân', avatar: 'PK', avatarColor: 'linear-gradient(135deg, #10b981, #059669)', followers: '12.4k' },
-  { id: 's2', name: 'Dinh dưỡng Thảo', role: 'Chuyên gia dinh dưỡng', avatar: 'NT', avatarColor: 'linear-gradient(135deg, #8b5cf6, #ec4899)', followers: '8.7k' },
-  { id: 's3', name: 'Runner Gia Huy', role: 'VĐV chạy marathon', avatar: 'GH', avatarColor: 'linear-gradient(135deg, #3b82f6, #6366f1)', followers: '6.1k' },
 ];
 
 const filters = [
@@ -281,35 +403,7 @@ export default function Feed() {
         </div>
 
         <aside className="feed-sidebar">
-          <Leaderboard />
-
-          <section className="dashboard-card sidebar-card">
-            <h2 className="card-title sidebar-card-title">Chủ đề nổi bật</h2>
-            <ul className="trending-list">
-              {trendingTopics.map(t => (
-                <li key={t.id} className="trending-item">
-                  <span className="trending-tag">{t.tag}</span>
-                  <span className="trending-count">{t.count}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="dashboard-card sidebar-card">
-            <h2 className="card-title sidebar-card-title">Gợi ý theo dõi</h2>
-            <ul className="suggest-list">
-              {suggestedPeople.map(s => (
-                <li key={s.id} className="suggest-item">
-                  <div className="suggest-avatar" style={{ background: s.avatarColor }}>{s.avatar}</div>
-                  <div className="suggest-info">
-                    <span className="suggest-name">{s.name}</span>
-                    <span className="suggest-role">{s.role} · {s.followers} theo dõi</span>
-                  </div>
-                  <button className="suggest-follow">Theo dõi</button>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <Leaderboard limit={5} />
         </aside>
       </div>
     </>
