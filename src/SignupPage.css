@@ -1,0 +1,169 @@
+/* ========================================
+   SIGNUP PAGE - Additional Styles
+   Extends LoginPage.css shared classes
+   ======================================== */
+
+/* --- Signup container needs scroll on small screens --- */
+.signup-container {
+  max-width: 460px;
+}
+
+/* --- Password Strength Indicator --- */
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: -6px;
+}
+
+.strength-bars {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.strength-bar.weak {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.strength-bar.medium {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+.strength-bar.strong {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
+}
+
+.strength-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  min-width: 65px;
+  text-align: right;
+}
+
+/* --- Terms text --- */
+.terms-text {
+  line-height: 1.5;
+}
+
+.terms-link {
+  color: var(--login-primary) !important;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.terms-link:hover {
+  color: var(--login-accent) !important;
+  text-decoration: underline;
+}
+
+/* ========================================
+   RESPONSIVE - Signup specific
+   ======================================== */
+
+@media (max-width: 430px) {
+  .signup-container {
+    max-width: 100%;
+  }
+}
+
+/* Very short screens - compact signup form */
+@media (max-height: 750px) {
+  .signup-container .login-brand {
+    margin-bottom: 18px;
+  }
+
+  .signup-container .login-form {
+    gap: 12px;
+  }
+
+  .signup-container .login-card {
+    padding: 28px 24px;
+  }
+
+  .signup-container .divider {
+    margin: 16px 0;
+  }
+}
+
+@media (max-height: 650px) {
+  .signup-container .login-brand {
+    margin-bottom: 12px;
+  }
+
+  .signup-container .brand-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+
+  .signup-container .brand-subtitle {
+    display: none;
+  }
+
+  .signup-container .login-form {
+    gap: 10px;
+  }
+
+  .signup-container .login-card {
+    padding: 22px 20px;
+  }
+
+  .signup-container .divider {
+    margin: 12px 0;
+  }
+
+  .signup-container .signup-text {
+    margin-top: 12px;
+  }
+
+  .password-strength {
+    margin-top: -4px;
+  }
+}
+
+/* Landscape */
+@media (max-height: 500px) and (orientation: landscape) {
+  .signup-container .login-card {
+    padding: 16px 20px;
+  }
+
+  .signup-container .login-brand {
+    margin-bottom: 8px;
+  }
+
+  .signup-container .login-form {
+    gap: 8px;
+  }
+
+  .signup-container .input-wrapper input {
+    padding: 10px 40px 10px 38px;
+  }
+
+  .signup-container .login-btn {
+    padding: 10px;
+  }
+
+  .password-strength {
+    margin-top: -2px;
+  }
+
+  .strength-bar {
+    height: 3px;
+  }
+}

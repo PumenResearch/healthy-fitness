@@ -2,7 +2,7 @@
    LOGIN PAGE - Premium Fitness Design
    ======================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
 
 /* --- CSS Variables --- */
 :root {
@@ -33,7 +33,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* --- Background --- */
@@ -188,7 +188,7 @@
 }
 
 .brand-title {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 24px;
   font-weight: 800;
   letter-spacing: 3px;
@@ -244,7 +244,7 @@
   border: 1.5px solid var(--login-input-border);
   border-radius: var(--login-radius-sm);
   color: var(--login-text-primary);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 14px;
   font-weight: 400;
   outline: none;
@@ -256,6 +256,18 @@
 .input-wrapper input::placeholder {
   color: var(--login-text-muted);
   font-weight: 400;
+}
+
+/* --- Autofill Override (prevent white background) --- */
+.input-wrapper input:-webkit-autofill,
+.input-wrapper input:-webkit-autofill:hover,
+.input-wrapper input:-webkit-autofill:focus,
+.input-wrapper input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(15, 15, 15, 0.97) inset !important;
+  box-shadow: 0 0 0 1000px rgba(15, 15, 15, 0.97) inset !important;
+  -webkit-text-fill-color: var(--login-text-primary) !important;
+  caret-color: var(--login-text-primary);
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .input-wrapper input:focus {
@@ -405,7 +417,7 @@
   border: none;
   border-radius: var(--login-radius-sm);
   color: #fff;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -520,7 +532,7 @@
   border: 1.5px solid var(--login-input-border);
   border-radius: var(--login-radius-sm);
   color: var(--login-text-primary);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -567,7 +579,7 @@
 }
 
 .motivational-quote p {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 13px;
   font-weight: 500;
   font-style: italic;
