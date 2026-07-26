@@ -1,6 +1,7 @@
 import type { Post, ReactionKey } from '../types';
-import { reactionMeta } from '../constants';
+import { reactionMeta } from '../constants.tsx';
 import StreakTag from './StreakTag';
+import ScoreTag from './ScoreTag';
 import './FeedPost.css';
 
 interface FeedPostProps {
@@ -39,7 +40,11 @@ export default function FeedPost({
         <div className="post-meta">
           <div className="post-author-row">
             <span className="post-author">{post.author}</span>
-            <StreakTag streak={post.streak} />
+            {post.category.type === 'workout' ? (
+              <StreakTag streak={post.streak} />
+            ) : (
+              post.score != null && <ScoreTag score={post.score} />
+            )}
             <span className="post-category" style={{ background: `${post.category.color}1f`, color: post.category.color }}>
               {post.category.label}
             </span>
@@ -89,7 +94,7 @@ export default function FeedPost({
                 .filter(r => post.reactions[r] > 0)
                 .slice(0, 3)
                 .map(r => (
-                  <span key={r} className="reaction-stack-emoji">{reactionMeta[r].emoji}</span>
+                  <span key={r} className="reaction-stack-icon" style={{ color: reactionMeta[r].color }}>{reactionMeta[r].icon}</span>
                 ))}
             </span>
             <span className="reaction-count">{totalReactions}</span>
@@ -104,7 +109,7 @@ export default function FeedPost({
               style={userReaction ? { color: reactionMeta[userReaction].color } : undefined}
               onClick={() => onToggleReactions(post.id)}
             >
-              <span className="action-emoji">{userReaction ? reactionMeta[userReaction].emoji : '👍'}</span>
+              <span className="action-icon">{userReaction ? reactionMeta[userReaction].icon : reactionMeta.like.icon}</span>
               <span>{userReaction ? reactionMeta[userReaction].label : 'Thích'}</span>
             </button>
             {isReactionPickerOpen && (
@@ -115,9 +120,9 @@ export default function FeedPost({
                     className="reaction-option"
                     onClick={() => onPickReaction(post.id, key)}
                     aria-label={reactionMeta[key].label}
+                    style={{ color: reactionMeta[key].color }}
                   >
-                    <span className="reaction-option-emoji">{reactionMeta[key].emoji}</span>
-                    <span className="reaction-option-label">{reactionMeta[key].label}</span>
+                    <span className="reaction-option-icon">{reactionMeta[key].icon}</span>
                   </button>
                 ))}
               </div>
