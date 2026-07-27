@@ -12,7 +12,10 @@ export default function ProtectedRoute() {
     )
   }
 
-  if (!session) {
+  // Cho phép bypass login ở môi trường Local Dev nếu không có session
+  const isBypassEnabled = import.meta.env.DEV || import.meta.env.VITE_BYPASS_AUTH === 'true'
+
+  if (!session && !isBypassEnabled) {
     return <Navigate to="/login" replace />
   }
 

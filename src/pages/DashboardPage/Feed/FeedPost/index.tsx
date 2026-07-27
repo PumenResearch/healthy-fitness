@@ -65,15 +65,29 @@ export default function FeedPost({
         <p className="post-text">{post.body}</p>
 
         {post.hasImage && (
-          <div className="post-media" style={{ background: post.imageGradient }}>
-            <span className="post-media-emoji">{post.imageEmoji}</span>
-            <div className="post-media-metrics">
-              {post.metrics.distance && <span>📈 {post.metrics.distance}</span>}
-              {post.metrics.duration && <span>⏱️ {post.metrics.duration}</span>}
-              {post.metrics.calories && <span>🔥 {post.metrics.calories}</span>}
-              {post.metrics.pace && <span>⚡ {post.metrics.pace}</span>}
+          post.imageUrl ? (
+            <div className="post-media post-media--image">
+              <img src={post.imageUrl} alt={post.title || 'Post image'} className="post-media-img" />
+              {(post.metrics.distance || post.metrics.duration || post.metrics.calories || post.metrics.pace) && (
+                <div className="post-media-metrics">
+                  {post.metrics.distance && <span>📈 {post.metrics.distance}</span>}
+                  {post.metrics.duration && <span>⏱️ {post.metrics.duration}</span>}
+                  {post.metrics.calories && <span>🔥 {post.metrics.calories}</span>}
+                  {post.metrics.pace && <span>⚡ {post.metrics.pace}</span>}
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="post-media" style={{ background: post.imageGradient }}>
+              <span className="post-media-emoji">{post.imageEmoji}</span>
+              <div className="post-media-metrics">
+                {post.metrics.distance && <span>📈 {post.metrics.distance}</span>}
+                {post.metrics.duration && <span>⏱️ {post.metrics.duration}</span>}
+                {post.metrics.calories && <span>🔥 {post.metrics.calories}</span>}
+                {post.metrics.pace && <span>⚡ {post.metrics.pace}</span>}
+              </div>
+            </div>
+          )
         )}
 
         {!post.hasImage && Object.keys(post.metrics).length > 0 && (

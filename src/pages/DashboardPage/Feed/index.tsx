@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Leaderboard from '../../../components/Leaderboard';
 import FeedPost from './FeedPost';
+import CreatePostModal from './CreatePostModal';
 import type { Post, ReactionKey, Comment } from './types';
 import './Feed.css';
 
@@ -278,6 +279,42 @@ export default function Feed() {
   const [openCommentsFor, setOpenCommentsFor] = useState<Record<string, boolean>>({});
   const [draftComments, setDraftComments] = useState<Record<string, string>>({});
 
+  // Create Post Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalCategory, setModalCategory] = useState<string | undefined>(undefined);
+
+  const handleOpenModal = (category?: string) => {
+    setModalCategory(category);
+    setIsModalOpen(true);
+  };
+
+  const handleCreatePost = (newPostData: Partial<Post>) => {
+    const fullPost: Post = {
+      id: `post-${Date.now()}`,
+      author: newPostData.author || 'Nguyễn Thành',
+      avatar: newPostData.avatar || 'NT',
+      avatarColor: newPostData.avatarColor || 'linear-gradient(135deg, #e53e3e, #ff6b35)',
+      time: 'Vừa xong',
+      category: newPostData.category || { label: 'Tập luyện', color: '#10b981', type: 'workout' },
+      title: newPostData.title || '',
+      body: newPostData.body || '',
+      hasImage: newPostData.hasImage,
+      imageGradient: newPostData.imageGradient,
+      imageEmoji: newPostData.imageEmoji,
+      imageUrl: newPostData.imageUrl,
+      metrics: newPostData.metrics || {},
+      stats: { likes: 0, comments: 0, shares: 0 },
+      reactions: { like: 0, love: 0, fire: 0, clap: 0 },
+      topReaction: 'like',
+      comments: [],
+      streak: newPostData.streak ?? 12,
+      isNew: true,
+    };
+
+    setPosts(prev => [fullPost, ...prev]);
+    setActiveFilter('all');
+  };
+
   const toggleReactions = (postId: string) => {
     setOpenReactionFor(prev => prev === postId ? null : postId);
   };
@@ -330,27 +367,65 @@ export default function Feed() {
     setDraftComments(prev => ({ ...prev, [postId]: '' }));
   };
 
+  // Filter posts
+  const filteredPosts = posts.filter(post => {
+    if (activeFilter === 'workout') return post.category.type === 'workout';
+    if (activeFilter === 'food') return post.category.label === 'Dinh dưỡng' || post.category.type === 'category';
+    return true;
+  });
+
   return (
     <>
       <div className="welcome-section feed-header">
         <div>
           <h1 className="welcome-title">Bảng tin</h1>
-          <p className="welcome-subtitle">Cập nhật hoạt động từ cộng đồng Healthy Fitness</p>
+          <p className="welcome-subtitle">Cập nhật hoạt động và chia sẻ thành tích cùng cộng đồng Healthy Fitness</p>
         </div>
       </div>
 
       <div className="feed-layout">
         <div className="feed-main">
+          {/* Main Composer Box */}
           <div className="feed-composer dashboard-card">
-            <div className="composer-avatar">NT</div>
-            <button className="composer-input">Bạn vừa tập gì hôm nay?</button>
-            <button className="feed-new-post-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Đăng bài
-            </button>
+            <div className="composer-top-row">
+              <div className="composer-avatar">NT</div>
+              <button
+                className="composer-input"
+                onClick={() => handleOpenModal()}
+              >
+                Bạn vừa tập gì hôm nay? Chia sẻ ngay...
+              </button>
+              <button
+                className="feed-new-post-btn"
+                onClick={() => handleOpenModal()}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Đăng bài
+              </button>
+            </div>
+
+            {/* Quick Action Shortcuts */}
+            <div className="composer-shortcuts">
+              <button className="composer-shortcut" onClick={() => handleOpenModal('Chạy bộ')}>
+                <span className="shortcut-emoji" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>🏃‍♀️</span>
+                <span>Tập luyện</span>
+              </button>
+              <button className="composer-shortcut" onClick={() => handleOpenModal('Dinh dưỡng')}>
+                <span className="shortcut-emoji" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>🥗</span>
+                <span>Dinh dưỡng</span>
+              </button>
+              <button className="composer-shortcut" onClick={() => handleOpenModal('Chia sẻ')}>
+                <span className="shortcut-emoji" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>📸</span>
+                <span>Ảnh / Banner</span>
+              </button>
+              <button className="composer-shortcut" onClick={() => handleOpenModal('Thử thách')}>
+                <span className="shortcut-emoji" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>📊</span>
+                <span>Chỉ số</span>
+              </button>
+            </div>
           </div>
 
           <div className="feed-filters">
@@ -366,7 +441,7 @@ export default function Feed() {
           </div>
 
           <div className="feed-posts">
-            {posts.map((post, index) => (
+            {filteredPosts.map((post, index) => (
               <FeedPost
                 key={post.id}
                 post={post}
@@ -389,6 +464,15 @@ export default function Feed() {
           <Leaderboard limit={5} />
         </aside>
       </div>
+
+      {/* Create Post Modal */}
+      <CreatePostModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleCreatePost}
+        initialCategory={modalCategory}
+      />
     </>
   );
 }
+

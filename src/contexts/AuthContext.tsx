@@ -44,6 +44,16 @@ async function fetchProfileWithRetry(userId: string, maxRetries = 5): Promise<Pr
   return null
 }
 
+const mockDevProfile: Profile = {
+  id: 'dev-local-user',
+  name: 'Nguyễn Thành',
+  avatar_text: 'NT',
+  avatar_color: 'linear-gradient(135deg, #e53e3e, #ff6b35)',
+  streak: 12,
+  score: 1250,
+  created_at: new Date().toISOString(),
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
@@ -57,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null)
       if (session?.user) {
         fetchProfileWithRetry(session.user.id).then(p => {
-          setProfile(p)
+          setProfile(p || (import.meta.env.DEV ? mockDevProfile : null))
           if (p) {
             const createdAt = new Date(p.created_at).getTime()
             setIsNewUser(Date.now() - createdAt < 10000)
@@ -65,6 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false)
         })
       } else {
+        if (import.meta.env.DEV) {
+          setProfile(mockDevProfile)
+        }
         setLoading(false)
       }
     })
@@ -75,13 +88,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null)
         if (session?.user) {
           const p = await fetchProfileWithRetry(session.user.id)
-          setProfile(p)
+          setProfile(p || (import.meta.env.DEV ? mockDevProfile : null))
           if (p) {
             const createdAt = new Date(p.created_at).getTime()
             setIsNewUser(Date.now() - createdAt < 10000)
           }
         } else {
-          setProfile(null)
+          setProfile(import.meta.env.DEV ? mockDevProfile : null)
           setIsNewUser(false)
         }
       }

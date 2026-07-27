@@ -105,12 +105,18 @@
 /* ===== Composer ===== */
 .feed-composer {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
   gap: 14px;
-  padding: 16px 18px;
+  padding: 18px 20px;
   border-radius: var(--dash-radius-lg);
   animation: fadeInUp 460ms ease-out 60ms both;
+}
+
+.composer-top-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
 .composer-avatar {

@@ -21,6 +21,7 @@ export type Post = {
   hasImage?: boolean;
   imageGradient?: string;
   imageEmoji?: string;
+  imageUrl?: string;
   metrics: {
     distance?: string;
     duration?: string;
@@ -33,4 +34,5 @@ export type Post = {
   comments: Comment[];
   streak: number;
   score?: number;
+  isNew?: boolean;
 };
