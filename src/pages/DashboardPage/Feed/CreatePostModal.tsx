@@ -1,23 +1,35 @@
 import { useState, useEffect } from 'react';
-import type { Post } from './types';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useToast } from '../../../contexts/ToastContext';
+import { createPost, fetchCategories, type Category, type CreatePostPayload } from '../../../lib/api';
 import './CreatePostModal.css';
 
 export interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (newPost: Partial<Post>) => void;
+  onPostCreated: () => void;
   initialCategory?: string;
 }
 
-const CATEGORY_OPTIONS = [
-  { label: 'Chạy bộ', color: '#10b981', type: 'workout' as const, emoji: '🏃‍♀️', placeholder: 'Hôm nay bạn vừa hoàn thành quãng đường chạy bao nhiêu km?' },
-  { label: 'Tập tạ', color: '#e53e3e', type: 'workout' as const, emoji: '🏋️', placeholder: 'Hôm nay bạn tập nhóm cơ nào? Mức tạ tối đa bao nhiêu?' },
-  { label: 'Yoga', color: '#8b5cf6', type: 'workout' as const, emoji: '🧘', placeholder: 'Cảm giác thư giãn và năng lượng tích cực sau buổi tập Yoga hôm nay...' },
-  { label: 'Đạp xe', color: '#06b6d4', type: 'workout' as const, emoji: '🚴', placeholder: 'Cung đường đạp xe hôm nay thế nào?' },
-  { label: 'Dinh dưỡng', color: '#f59e0b', type: 'category' as const, emoji: '🥗', placeholder: 'Chia sẻ thực đơn healthy, công thức món ăn dinh dưỡng của bạn...' },
-  { label: 'Thử thách', color: '#ec4899', type: 'category' as const, emoji: '🏆', placeholder: 'Bạn vừa chinh phục cột mốc thử thách mới nào?' },
-  { label: 'Chia sẻ', color: '#3b82f6', type: 'category' as const, emoji: '💡', placeholder: 'Kinh nghiệm, mẹo luyện tập hoặc lời khuyên dành cho cộng đồng...' },
-];
+const EMOJI_MAP: Record<string, string> = {
+  'Chạy bộ': '🏃‍♀️',
+  'Tập tạ': '🏋️',
+  'Yoga': '🧘',
+  'Đạp xe': '🚴',
+  'Dinh dưỡng': '🥗',
+  'Thử thách': '🏆',
+  'Chia sẻ': '💡',
+};
+
+const PLACEHOLDER_MAP: Record<string, string> = {
+  'Chạy bộ': 'Hôm nay bạn vừa hoàn thành quãng đường chạy bao nhiêu km?',
+  'Tập tạ': 'Hôm nay bạn tập nhóm cơ nào? Mức tạ tối đa bao nhiêu?',
+  'Yoga': 'Cảm giác thư giãn và năng lượng tích cực sau buổi tập Yoga hôm nay...',
+  'Đạp xe': 'Cung đường đạp xe hôm nay thế nào?',
+  'Dinh dưỡng': 'Chia sẻ thực đơn healthy, công thức món ăn dinh dưỡng của bạn...',
+  'Thử thách': 'Bạn vừa chinh phục cột mốc thử thách mới nào?',
+  'Chia sẻ': 'Kinh nghiệm, mẹo luyện tập hoặc lời khuyên dành cho cộng đồng...',
+};
 
 const GRADIENT_PRESETS = [
   { id: 'cyber-neon', name: 'Đại dương Neon', value: 'linear-gradient(135deg, #0ea5e9 0%, #10b981 60%, #059669 100%)' },
@@ -36,7 +48,11 @@ const SAMPLE_DEMO_IMAGES = [
   { label: 'Tập Yoga', url: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80' },
 ];
 
-export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCategory }: CreatePostModalProps) {
+export default function CreatePostModal({ isOpen, onClose, onPostCreated, initialCategory }: CreatePostModalProps) {
+  const { profile } = useAuth();
+  const { showToast } = useToast();
+
+  const [categories, setCategories] = useState<Category[]>([]);
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -55,28 +71,35 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
   const [calories, setCalories] = useState('');
   const [pace, setPace] = useState('');
 
-  // Attachments & State
+  // State
   const [includeStreak, setIncludeStreak] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Fetch categories from API
+  useEffect(() => {
+    if (isOpen && categories.length === 0) {
+      fetchCategories()
+        .then(setCategories)
+        .catch(() => showToast('Không tải được danh mục', 'error'));
+    }
+  }, [isOpen]);
+
   // Sync initial category when modal opens
   useEffect(() => {
-    if (initialCategory) {
-      const idx = CATEGORY_OPTIONS.findIndex(c => c.label.toLowerCase() === initialCategory.toLowerCase());
+    if (initialCategory && categories.length > 0) {
+      const idx = categories.findIndex(c => c.label.toLowerCase() === initialCategory.toLowerCase());
       if (idx !== -1) {
         setCategoryIndex(idx);
-        setSelectedEmoji(CATEGORY_OPTIONS[idx].emoji);
+        setSelectedEmoji(EMOJI_MAP[categories[idx].label] || '📝');
       }
     }
-  }, [initialCategory, isOpen]);
+  }, [initialCategory, isOpen, categories]);
 
   // Handle ESC key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
+      if (e.key === 'Escape' && isOpen) onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -84,11 +107,12 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
 
   if (!isOpen) return null;
 
-  const currentCategory = CATEGORY_OPTIONS[categoryIndex];
+  const safeIndex = categoryIndex < categories.length ? categoryIndex : 0;
+  const currentCategory = categories[safeIndex] || null;
 
   const handleCategorySelect = (index: number) => {
     setCategoryIndex(index);
-    setSelectedEmoji(CATEGORY_OPTIONS[index].emoji);
+    setSelectedEmoji(EMOJI_MAP[categories[index].label] || '📝');
   };
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,48 +124,55 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetForm = () => {
+    setTitle('');
+    setBody('');
+    setDistance('');
+    setDuration('');
+    setCalories('');
+    setPace('');
+    setImageUrl('');
+    setShowPreview(false);
+    setMediaType('gradient');
+    setSelectedGradient(GRADIENT_PRESETS[0].value);
+    setSelectedEmoji('🏃‍♀️');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!body.trim() && !title.trim()) return;
+    if (!currentCategory) return;
 
     setIsSubmitting(true);
 
-    const metricsObj: Record<string, string> = {};
-    if (distance.trim()) metricsObj.distance = distance.includes('km') ? distance.trim() : `${distance.trim()} km`;
-    if (duration.trim()) metricsObj.duration = duration.includes('phút') || duration.includes(':') ? duration.trim() : `${duration.trim()} phút`;
-    if (calories.trim()) metricsObj.calories = calories.includes('kcal') ? calories.trim() : `${calories.trim()} kcal`;
-    if (pace.trim()) metricsObj.pace = pace.trim();
+    const payload: CreatePostPayload = {
+      title: title.trim() || `${currentCategory.label} hoàn thành! 💪`,
+      category_id: currentCategory.id,
+      body: body.trim() || undefined,
+      distance: distance.trim() ? parseFloat(distance) || null : null,
+      duration: duration.trim() ? parseFloat(duration) || null : null,
+      calories: calories.trim() ? parseFloat(calories) || null : null,
+      pace: pace.trim() ? parseFloat(pace) || null : null,
+      images: mediaType === 'image' && imageUrl ? [imageUrl] : undefined,
+    };
 
-    setTimeout(() => {
-      onSubmit({
-        author: 'Nguyễn Thành',
-        avatar: 'NT',
-        avatarColor: 'linear-gradient(135deg, #e53e3e, #ff6b35)',
-        time: 'Vừa xong',
-        category: {
-          label: currentCategory.label,
-          color: currentCategory.color,
-          type: currentCategory.type,
-        },
-        title: title.trim() || `${currentCategory.label} hoàn thành! 💪`,
-        body: body.trim(),
-        hasImage: mediaType === 'image' ? !!imageUrl : true,
-        imageGradient: mediaType === 'gradient' ? selectedGradient : undefined,
-        imageEmoji: mediaType === 'gradient' ? selectedEmoji : undefined,
-        imageUrl: mediaType === 'image' ? imageUrl : undefined,
-        metrics: metricsObj,
-        stats: { likes: 0, comments: 0, shares: 0 },
-        reactions: { like: 0, love: 0, fire: 0, clap: 0 },
-        topReaction: 'like',
-        comments: [],
-        streak: includeStreak ? 12 : 0,
-        isNew: true,
-      });
-
-      setIsSubmitting(false);
+    try {
+      await createPost(payload);
+      showToast('Đăng bài thành công!', 'success');
+      resetForm();
+      onPostCreated();
       onClose();
-    }, 400);
+    } catch (err: any) {
+      showToast(err.message || 'Đăng bài thất bại', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const categoryLabel = currentCategory?.label || '';
+  const categoryColor = currentCategory?.color || '#10b981';
+  const categoryType = currentCategory?.type || 'workout';
+  const placeholder = PLACEHOLDER_MAP[categoryLabel] || 'Chia sẻ hoạt động của bạn...';
 
   return (
     <div className="create-post-overlay" onClick={onClose}>
@@ -150,13 +181,14 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
         <div className="create-post-header">
           <div className="modal-title-row">
             <div className="modal-user-info">
-              <div className="modal-avatar">NT</div>
+              <div className="modal-avatar" style={profile?.avatar_color ? { background: profile.avatar_color } : undefined}>
+                {profile?.avatar_text || 'U'}
+              </div>
               <div>
                 <div className="modal-user-name">
-                  Nguyễn Thành
-                  <span className="modal-streak-badge">🔥 12 ngày</span>
+                  {profile?.name || 'Người dùng'}
+                  {profile?.streak ? <span className="modal-streak-badge">🔥 {profile.streak} ngày</span> : null}
                 </div>
-                {/* Privacy selector */}
                 <div className="privacy-selector">
                   <select
                     value={privacy}
@@ -181,17 +213,15 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
 
           {/* Category Chips */}
           <div className="category-chips">
-            {CATEGORY_OPTIONS.map((cat, idx) => (
+            {categories.map((cat, idx) => (
               <button
-                key={cat.label}
+                key={cat.id}
                 type="button"
                 className={`category-chip ${categoryIndex === idx ? 'active' : ''}`}
-                style={{
-                  '--chip-color': cat.color,
-                } as React.CSSProperties}
+                style={{ '--chip-color': cat.color } as React.CSSProperties}
                 onClick={() => handleCategorySelect(idx)}
               >
-                <span>{cat.emoji}</span>
+                <span>{EMOJI_MAP[cat.label] || '📝'}</span>
                 <span>{cat.label}</span>
               </button>
             ))}
@@ -205,7 +235,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
             <input
               type="text"
               className="post-title-input"
-              placeholder={`Tiêu đề (Ví dụ: ${currentCategory.label} buổi sáng...)`}
+              placeholder={`Tiêu đề (Ví dụ: ${categoryLabel} buổi sáng...)`}
               value={title}
               onChange={e => setTitle(e.target.value)}
               maxLength={100}
@@ -215,7 +245,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
             <div className="textarea-wrapper">
               <textarea
                 className="post-body-textarea"
-                placeholder={currentCategory.placeholder}
+                placeholder={placeholder}
                 value={body}
                 onChange={e => setBody(e.target.value)}
                 rows={4}
@@ -235,11 +265,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
                   </svg>
                   Chỉ số tập luyện
                 </span>
-                <button
-                  type="button"
-                  className="toggle-section-btn"
-                  onClick={() => setShowMetrics(!showMetrics)}
-                >
+                <button type="button" className="toggle-section-btn" onClick={() => setShowMetrics(!showMetrics)}>
                   {showMetrics ? 'Ẩn chỉ số' : 'Thêm chỉ số'}
                 </button>
               </div>
@@ -247,40 +273,20 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
               {showMetrics && (
                 <div className="metrics-grid">
                   <div className="metric-input-group">
-                    <label>📏 Khoảng cách</label>
-                    <input
-                      type="text"
-                      placeholder="vd: 5.2 km"
-                      value={distance}
-                      onChange={e => setDistance(e.target.value)}
-                    />
+                    <label>📏 Khoảng cách (km)</label>
+                    <input type="number" step="0.1" placeholder="vd: 5.2" value={distance} onChange={e => setDistance(e.target.value)} />
                   </div>
                   <div className="metric-input-group">
-                    <label>⏱️ Thời gian</label>
-                    <input
-                      type="text"
-                      placeholder="vd: 45 phút"
-                      value={duration}
-                      onChange={e => setDuration(e.target.value)}
-                    />
+                    <label>⏱️ Thời gian (phút)</label>
+                    <input type="number" step="1" placeholder="vd: 45" value={duration} onChange={e => setDuration(e.target.value)} />
                   </div>
                   <div className="metric-input-group">
                     <label>🔥 Calo tiêu thụ</label>
-                    <input
-                      type="text"
-                      placeholder="vd: 350 kcal"
-                      value={calories}
-                      onChange={e => setCalories(e.target.value)}
-                    />
+                    <input type="number" step="1" placeholder="vd: 350" value={calories} onChange={e => setCalories(e.target.value)} />
                   </div>
                   <div className="metric-input-group">
-                    <label>⚡ Pace / Trọng lượng</label>
-                    <input
-                      type="text"
-                      placeholder="vd: 5:15 /km hoặc 80kg"
-                      value={pace}
-                      onChange={e => setPace(e.target.value)}
-                    />
+                    <label>⚡ Pace (phút/km)</label>
+                    <input type="number" step="0.01" placeholder="vd: 5.15" value={pace} onChange={e => setPace(e.target.value)} />
                   </div>
                 </div>
               )}
@@ -289,18 +295,10 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
             {/* Media Customizer */}
             <div className="modal-section">
               <div className="media-tabs">
-                <button
-                  type="button"
-                  className={`media-tab ${mediaType === 'gradient' ? 'active' : ''}`}
-                  onClick={() => setMediaType('gradient')}
-                >
+                <button type="button" className={`media-tab ${mediaType === 'gradient' ? 'active' : ''}`} onClick={() => setMediaType('gradient')}>
                   🎨 Bìa Gradient & Emoji
                 </button>
-                <button
-                  type="button"
-                  className={`media-tab ${mediaType === 'image' ? 'active' : ''}`}
-                  onClick={() => setMediaType('image')}
-                >
+                <button type="button" className={`media-tab ${mediaType === 'image' ? 'active' : ''}`} onClick={() => setMediaType('image')}>
                   📸 Hình ảnh
                 </button>
               </div>
@@ -310,10 +308,10 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
                   <div className="gradient-preview" style={{ background: selectedGradient }}>
                     <span className="gradient-preview-emoji">{selectedEmoji}</span>
                     <div className="gradient-preview-metrics">
-                      {distance && <span>📈 {distance}</span>}
-                      {duration && <span>⏱️ {duration}</span>}
-                      {calories && <span>🔥 {calories}</span>}
-                      {pace && <span>⚡ {pace}</span>}
+                      {distance && <span>📈 {distance} km</span>}
+                      {duration && <span>⏱️ {duration} phút</span>}
+                      {calories && <span>🔥 {calories} kcal</span>}
+                      {pace && <span>⚡ {pace} /km</span>}
                     </div>
                   </div>
 
@@ -337,12 +335,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
                     <label className="sub-label">Biểu tượng chính:</label>
                     <div className="emoji-chips">
                       {EMOJI_OPTIONS.map(emo => (
-                        <button
-                          key={emo}
-                          type="button"
-                          className={`emoji-chip ${selectedEmoji === emo ? 'active' : ''}`}
-                          onClick={() => setSelectedEmoji(emo)}
-                        >
+                        <button key={emo} type="button" className={`emoji-chip ${selectedEmoji === emo ? 'active' : ''}`} onClick={() => setSelectedEmoji(emo)}>
                           {emo}
                         </button>
                       ))}
@@ -354,35 +347,19 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
                   {imageUrl ? (
                     <div className="uploaded-image-preview">
                       <img src={imageUrl} alt="Uploaded post preview" />
-                      <button
-                        type="button"
-                        className="remove-img-btn"
-                        onClick={() => setImageUrl('')}
-                        title="Xóa ảnh"
-                      >
-                        ✕
-                      </button>
+                      <button type="button" className="remove-img-btn" onClick={() => setImageUrl('')} title="Xóa ảnh">✕</button>
                     </div>
                   ) : (
                     <div className="upload-dropzone">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        id="post-img-file"
-                        className="file-input-hidden"
-                        onChange={handleImageFileChange}
-                      />
+                      <input type="file" accept="image/*" id="post-img-file" className="file-input-hidden" onChange={handleImageFileChange} />
                       <label htmlFor="post-img-file" className="upload-label">
                         <div className="upload-icon">📷</div>
-                        <div>
-                          <strong>Nhấp để chọn ảnh</strong> hoặc kéo thả vào đây
-                        </div>
+                        <div><strong>Nhấp để chọn ảnh</strong> hoặc kéo thả vào đây</div>
                         <span className="upload-hint">Hỗ trợ JPG, PNG, WebP</span>
                       </label>
                     </div>
                   )}
 
-                  {/* Preset sample images for quick testing */}
                   <div className="sample-images-bar">
                     <span className="sub-label">Hoặc chọn ảnh mẫu nhanh:</span>
                     <div className="sample-thumbs">
@@ -406,43 +383,37 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
             {/* Extra Options & Live Preview Toggle */}
             <div className="post-options-bar">
               <label className="streak-toggle-checkbox">
-                <input
-                  type="checkbox"
-                  checked={includeStreak}
-                  onChange={e => setIncludeStreak(e.target.checked)}
-                />
-                <span>Gắn Badge Chuỗi Luyện Tập (🔥 12 ngày)</span>
+                <input type="checkbox" checked={includeStreak} onChange={e => setIncludeStreak(e.target.checked)} />
+                <span>Gắn Badge Chuỗi Luyện Tập (🔥 {profile?.streak || 0} ngày)</span>
               </label>
 
-              <button
-                type="button"
-                className={`preview-toggle-btn ${showPreview ? 'active' : ''}`}
-                onClick={() => setShowPreview(!showPreview)}
-              >
+              <button type="button" className={`preview-toggle-btn ${showPreview ? 'active' : ''}`} onClick={() => setShowPreview(!showPreview)}>
                 👁️ {showPreview ? 'Ẩn xem trước' : 'Xem trước bài đăng'}
               </button>
             </div>
 
             {/* Live Preview Card */}
-            {showPreview && (
+            {showPreview && currentCategory && (
               <div className="live-preview-box">
                 <div className="preview-badge">Xem trước bài viết trên Bảng tin</div>
                 <article className="feed-post dashboard-card preview-card">
                   <header className="post-header">
-                    <div className="post-avatar" style={{ background: 'linear-gradient(135deg, #e53e3e, #ff6b35)' }}>NT</div>
+                    <div className="post-avatar" style={{ background: profile?.avatar_color || 'linear-gradient(135deg, #e53e3e, #ff6b35)' }}>
+                      {profile?.avatar_text || 'U'}
+                    </div>
                     <div className="post-meta">
                       <div className="post-author-row">
-                        <span className="post-author">Nguyễn Thành</span>
-                        {includeStreak && <span className="streak-tag streak-tag--consistent">🔥 12 ngày</span>}
-                        <span className="post-category" style={{ background: `${currentCategory.color}1f`, color: currentCategory.color }}>
-                          {currentCategory.label}
+                        <span className="post-author">{profile?.name || 'Người dùng'}</span>
+                        {includeStreak && profile?.streak ? <span className="streak-tag streak-tag--consistent">🔥 {profile.streak} ngày</span> : null}
+                        <span className="post-category" style={{ background: `${categoryColor}1f`, color: categoryColor }}>
+                          {categoryLabel}
                         </span>
                       </div>
                       <span className="post-time">Vừa xong</span>
                     </div>
                   </header>
                   <div className="post-body">
-                    <h3 className="post-title">{title || `${currentCategory.label} hoàn thành! 💪`}</h3>
+                    <h3 className="post-title">{title || `${categoryLabel} hoàn thành! 💪`}</h3>
                     <p className="post-text">{body || 'Nội dung bài đăng sẽ hiển thị ở đây...'}</p>
                     {mediaType === 'image' && imageUrl && (
                       <div className="post-media post-media--image">
@@ -454,10 +425,10 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
                         <span className="post-media-emoji">{selectedEmoji}</span>
                         {(distance || duration || calories || pace) && (
                           <div className="post-media-metrics">
-                            {distance && <span>📈 {distance}</span>}
-                            {duration && <span>⏱️ {duration}</span>}
-                            {calories && <span>🔥 {calories}</span>}
-                            {pace && <span>⚡ {pace}</span>}
+                            {distance && <span>📈 {distance} km</span>}
+                            {duration && <span>⏱️ {duration} phút</span>}
+                            {calories && <span>🔥 {calories} kcal</span>}
+                            {pace && <span>⚡ {pace} /km</span>}
                           </div>
                         )}
                       </div>
@@ -470,14 +441,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, initialCate
 
           {/* Footer actions */}
           <div className="create-post-footer">
-            <button type="button" className="btn-cancel" onClick={onClose}>
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="btn-submit-post"
-              disabled={(!title.trim() && !body.trim()) || isSubmitting}
-            >
+            <button type="button" className="btn-cancel" onClick={onClose}>Hủy</button>
+            <button type="submit" className="btn-submit-post" disabled={(!title.trim() && !body.trim()) || isSubmitting || !currentCategory}>
               {isSubmitting ? (
                 <span className="submitting-spinner">Đang đăng bài...</span>
               ) : (

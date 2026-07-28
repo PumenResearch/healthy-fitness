@@ -1,11 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Leaderboard from '../../../components/Leaderboard';
 import FeedPost from './FeedPost';
 import CreatePostModal from './CreatePostModal';
+import { fetchPosts, type ApiPost } from '../../../lib/api';
 import type { Post, ReactionKey, Comment } from './types';
 import './Feed.css';
 
-const initialPosts: Post[] = [
+function apiPostToLocal(apiPost: ApiPost): Post {
+  const metrics: Record<string, string> = {};
+  if (apiPost.distance) metrics.distance = `${apiPost.distance} km`;
+  if (apiPost.duration) metrics.duration = `${apiPost.duration} phút`;
+  if (apiPost.calories) metrics.calories = `${apiPost.calories} kcal`;
+  if (apiPost.pace) metrics.pace = `${apiPost.pace} /km`;
+
+  const createdAt = new Date(apiPost.created_at);
+  const now = new Date();
+  const diffMs = now.getTime() - createdAt.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  let time = 'Vừa xong';
+  if (diffMin >= 1440) time = `${Math.floor(diffMin / 1440)} ngày trước`;
+  else if (diffMin >= 60) time = `${Math.floor(diffMin / 60)} giờ trước`;
+  else if (diffMin >= 1) time = `${diffMin} phút trước`;
+
+  return {
+    id: apiPost.id,
+    author: apiPost.author.name,
+    avatar: apiPost.author.avatar_text,
+    avatarColor: apiPost.author.avatar_color,
+    time,
+    category: {
+      label: apiPost.category.label,
+      color: apiPost.category.color,
+      type: apiPost.category.type,
+    },
+    title: apiPost.title,
+    body: apiPost.body,
+    hasImage: (apiPost.images && apiPost.images.length > 0) || false,
+    imageUrl: apiPost.images?.[0]?.url,
+    metrics,
+    stats: {
+      likes: Object.values(apiPost.reactions).reduce((a, b) => a + b, 0),
+      comments: apiPost.commentCount,
+      shares: 0,
+    },
+    reactions: {
+      like: apiPost.reactions.like || 0,
+      love: apiPost.reactions.love || 0,
+      fire: apiPost.reactions.fire || 0,
+      clap: apiPost.reactions.clap || 0,
+    },
+    topReaction: (apiPost.topReaction as ReactionKey) || 'like',
+    comments: [],
+    streak: apiPost.streak_snapshot,
+    score: apiPost.score_snapshot ?? undefined,
+  };
+}
+
+const fallbackPosts: Post[] = [
   {
     id: 'post-1',
     author: 'Lê Minh Anh',
@@ -272,47 +323,43 @@ const filters = [
 ];
 
 export default function Feed() {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [posts, setPosts] = useState<Post[]>(fallbackPosts);
   const [activeFilter, setActiveFilter] = useState('all');
   const [openReactionFor, setOpenReactionFor] = useState<string | null>(null);
   const [userReactions, setUserReactions] = useState<Record<string, ReactionKey | null>>({});
   const [openCommentsFor, setOpenCommentsFor] = useState<Record<string, boolean>>({});
   const [draftComments, setDraftComments] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   // Create Post Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalCategory, setModalCategory] = useState<string | undefined>(undefined);
+
+  const loadPosts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchPosts({ limit: 20, filter: activeFilter });
+      if (data.posts.length > 0) {
+        setPosts(data.posts.map(apiPostToLocal));
+      }
+    } catch {
+      // Keep fallback posts on error
+    } finally {
+      setLoading(false);
+    }
+  }, [activeFilter]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   const handleOpenModal = (category?: string) => {
     setModalCategory(category);
     setIsModalOpen(true);
   };
 
-  const handleCreatePost = (newPostData: Partial<Post>) => {
-    const fullPost: Post = {
-      id: `post-${Date.now()}`,
-      author: newPostData.author || 'Nguyễn Thành',
-      avatar: newPostData.avatar || 'NT',
-      avatarColor: newPostData.avatarColor || 'linear-gradient(135deg, #e53e3e, #ff6b35)',
-      time: 'Vừa xong',
-      category: newPostData.category || { label: 'Tập luyện', color: '#10b981', type: 'workout' },
-      title: newPostData.title || '',
-      body: newPostData.body || '',
-      hasImage: newPostData.hasImage,
-      imageGradient: newPostData.imageGradient,
-      imageEmoji: newPostData.imageEmoji,
-      imageUrl: newPostData.imageUrl,
-      metrics: newPostData.metrics || {},
-      stats: { likes: 0, comments: 0, shares: 0 },
-      reactions: { like: 0, love: 0, fire: 0, clap: 0 },
-      topReaction: 'like',
-      comments: [],
-      streak: newPostData.streak ?? 12,
-      isNew: true,
-    };
-
-    setPosts(prev => [fullPost, ...prev]);
-    setActiveFilter('all');
+  const handlePostCreated = () => {
+    loadPosts();
   };
 
   const toggleReactions = (postId: string) => {
@@ -367,12 +414,8 @@ export default function Feed() {
     setDraftComments(prev => ({ ...prev, [postId]: '' }));
   };
 
-  // Filter posts
-  const filteredPosts = posts.filter(post => {
-    if (activeFilter === 'workout') return post.category.type === 'workout';
-    if (activeFilter === 'food') return post.category.label === 'Dinh dưỡng' || post.category.type === 'category';
-    return true;
-  });
+  // Filter posts (client-side fallback for when API filter fails)
+  const filteredPosts = posts;
 
   return (
     <>
@@ -441,6 +484,9 @@ export default function Feed() {
           </div>
 
           <div className="feed-posts">
+            {loading && posts.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>Đang tải bài viết...</div>
+            )}
             {filteredPosts.map((post, index) => (
               <FeedPost
                 key={post.id}
@@ -469,10 +515,9 @@ export default function Feed() {
       <CreatePostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleCreatePost}
+        onPostCreated={handlePostCreated}
         initialCategory={modalCategory}
       />
     </>
   );
 }
-
