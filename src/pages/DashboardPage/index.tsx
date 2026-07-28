@@ -1,4 +1,7 @@
+import { useAuth } from '../../contexts/AuthContext';
+
 export default function Dashboard() {
+  const { profile } = useAuth();
   const stats = [
     { id: 'stat-calories', modifier: 'calories', value: '1,847 kcal', label: 'Calories hôm nay', change: '+12% so với hôm qua', isPositive: true, icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -10,7 +13,7 @@ export default function Dashboard() {
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
       </svg>
     )},
-    { id: 'stat-streak', modifier: 'streak', value: '15 ngày', label: 'Chuỗi ngày tập', change: 'Kỷ lục: 21 ngày', isPositive: true, icon: (
+    { id: 'stat-streak', modifier: 'streak', value: `${profile?.streak ?? 0} ngày`, label: 'Chuỗi ngày tập', change: `Kỷ lục: ${profile?.longest_streak ?? 0} ngày`, isPositive: true, icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 2c1.5 2 3 3.5 3 5.5A4.5 4.5 0 0 1 10.5 12c-1.5-2-1.5-3-1.5-3s-.5 1-1 3C6 14.5 7.5 18 12 18s6-3.5 4-8.5C16 6 12 2 12 2z"></path>
         <path d="M12 22a8 8 0 1 0 0-16"></path>

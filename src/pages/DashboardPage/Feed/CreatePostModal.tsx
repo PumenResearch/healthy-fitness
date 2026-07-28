@@ -51,7 +51,7 @@ const SAMPLE_DEMO_IMAGES = [
 ];
 
 export default function CreatePostModal({ isOpen, onClose, onPostCreated, initialCategory }: CreatePostModalProps) {
-  const { profile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const { showToast } = useToast();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -204,6 +204,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
       };
 
       await createPost(payload);
+      void refreshProfile();
       showToast('Đăng bài thành công!', 'success');
       resetForm();
       onPostCreated();

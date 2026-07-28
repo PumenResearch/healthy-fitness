@@ -8,6 +8,8 @@ export interface Profile {
   avatar_text: string
   avatar_color: string
   streak: number
+  longest_streak: number
+  last_activity_date: string | null
   score: number
   created_at: string
 }
@@ -20,13 +22,14 @@ interface AuthContextType {
   isNewUser: boolean
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
-    .from('profiles')
+    .from('profile_stats')
     .select('*')
     .eq('id', userId)
     .single()
@@ -50,6 +53,8 @@ const mockDevProfile: Profile = {
   avatar_text: 'NT',
   avatar_color: 'linear-gradient(135deg, #e53e3e, #ff6b35)',
   streak: 12,
+  longest_streak: 21,
+  last_activity_date: new Date().toISOString().slice(0, 10),
   score: 1250,
   created_at: new Date().toISOString(),
 }
@@ -103,6 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  const refreshProfile = async () => {
+    if (!user) return
+    const nextProfile = await fetchProfile(user.id)
+    setProfile(nextProfile || (import.meta.env.DEV ? mockDevProfile : null))
+  }
+
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -121,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, isNewUser, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ session, user, profile, loading, isNewUser, signInWithGoogle, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )
