@@ -107,11 +107,18 @@ export async function createPost(payload: CreatePostPayload): Promise<ApiPost> {
   })
 }
 
+export type PostFilter = 'all' | 'workout' | 'category'
+
+export interface FetchPostsResponse {
+  posts: ApiPost[]
+  pagination: { page: number; limit: number; total: number; totalPages: number }
+}
+
 export async function fetchPosts(params: {
   page?: number
   limit?: number
-  filter?: string
-} = {}): Promise<{ posts: ApiPost[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
+  filter?: PostFilter
+} = {}): Promise<FetchPostsResponse> {
   const searchParams = new URLSearchParams()
   if (params.page) searchParams.set('page', String(params.page))
   if (params.limit) searchParams.set('limit', String(params.limit))

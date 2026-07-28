@@ -203,6 +203,46 @@
   font-size: 0.95rem;
 }
 
+/* ===== Feed states (loading / empty / error) ===== */
+.feed-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 20px;
+  border-radius: var(--dash-radius-lg);
+  color: var(--dash-text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  animation: fadeInUp 420ms ease-out both;
+}
+
+.feed-state p {
+  margin: 0;
+}
+
+.feed-state--error {
+  color: var(--dash-text-primary);
+  border: 1px solid rgba(229, 62, 62, 0.35);
+}
+
+.feed-retry {
+  padding: 9px 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--dash-primary), var(--dash-accent));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform var(--dash-transition), box-shadow var(--dash-transition);
+}
+
+.feed-retry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(229, 62, 62, 0.32);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1180px) {
   .feed-layout {
