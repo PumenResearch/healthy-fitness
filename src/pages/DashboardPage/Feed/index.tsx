@@ -195,25 +195,6 @@ export default function Feed() {
                 Đăng bài
               </button>
             </div>
-
-            <div className="composer-shortcuts">
-              <button className="composer-shortcut" onClick={() => handleOpenModal('Chạy bộ')}>
-                <span className="shortcut-emoji" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>🏃‍♀️</span>
-                <span>Tập luyện</span>
-              </button>
-              <button className="composer-shortcut" onClick={() => handleOpenModal('Dinh dưỡng')}>
-                <span className="shortcut-emoji" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>🥗</span>
-                <span>Dinh dưỡng</span>
-              </button>
-              <button className="composer-shortcut" onClick={() => handleOpenModal('Chia sẻ')}>
-                <span className="shortcut-emoji" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>📸</span>
-                <span>Ảnh / Banner</span>
-              </button>
-              <button className="composer-shortcut" onClick={() => handleOpenModal('Thử thách')}>
-                <span className="shortcut-emoji" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>📊</span>
-                <span>Chỉ số</span>
-              </button>
-            </div>
           </div>
 
           <div className="feed-filters">
