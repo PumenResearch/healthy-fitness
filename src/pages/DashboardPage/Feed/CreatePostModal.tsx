@@ -171,7 +171,6 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
 
   const categoryLabel = currentCategory?.label || '';
   const categoryColor = currentCategory?.color || '#10b981';
-  const categoryType = currentCategory?.type || 'workout';
   const placeholder = PLACEHOLDER_MAP[categoryLabel] || 'Chia sẻ hoạt động của bạn...';
 
   return (
