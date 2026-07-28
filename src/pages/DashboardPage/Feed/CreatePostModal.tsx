@@ -13,22 +13,18 @@ export interface CreatePostModalProps {
 
 const EMOJI_MAP: Record<string, string> = {
   'Chạy bộ': '🏃‍♀️',
-  'Tập tạ': '🏋️',
-  'Yoga': '🧘',
-  'Đạp xe': '🚴',
-  'Dinh dưỡng': '🥗',
-  'Thử thách': '🏆',
-  'Chia sẻ': '💡',
+  'Ăn uống': '🥗',
+  'Gym': '🏋️',
+  'Ngày nghỉ': '😴',
+  'Cardio': '🚴',
 };
 
 const PLACEHOLDER_MAP: Record<string, string> = {
   'Chạy bộ': 'Hôm nay bạn vừa hoàn thành quãng đường chạy bao nhiêu km?',
-  'Tập tạ': 'Hôm nay bạn tập nhóm cơ nào? Mức tạ tối đa bao nhiêu?',
-  'Yoga': 'Cảm giác thư giãn và năng lượng tích cực sau buổi tập Yoga hôm nay...',
-  'Đạp xe': 'Cung đường đạp xe hôm nay thế nào?',
-  'Dinh dưỡng': 'Chia sẻ thực đơn healthy, công thức món ăn dinh dưỡng của bạn...',
-  'Thử thách': 'Bạn vừa chinh phục cột mốc thử thách mới nào?',
-  'Chia sẻ': 'Kinh nghiệm, mẹo luyện tập hoặc lời khuyên dành cho cộng đồng...',
+  'Ăn uống': 'Chia sẻ thực đơn healthy hoặc món ăn dinh dưỡng của bạn...',
+  'Gym': 'Hôm nay bạn tập nhóm cơ nào? Mức tạ tối đa bao nhiêu?',
+  'Ngày nghỉ': 'Hôm nay bạn nghỉ ngơi và phục hồi như thế nào?',
+  'Cardio': 'Buổi Cardio hôm nay của bạn thế nào?',
 };
 
 const GRADIENT_PRESETS = [

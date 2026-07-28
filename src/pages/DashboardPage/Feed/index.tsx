@@ -60,7 +60,7 @@ function apiPostToLocal(apiPost: ApiPost): Post {
 const filters: { id: PostFilter; label: string }[] = [
   { id: 'all', label: 'Tất cả' },
   { id: 'workout', label: 'Tập luyện' },
-  { id: 'category', label: 'Ăn uống' },
+  { id: 'food', label: 'Ăn uống' },
 ];
 
 type LoadState = 'loading' | 'ready' | 'error';

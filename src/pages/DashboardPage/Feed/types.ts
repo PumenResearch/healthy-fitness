@@ -15,7 +15,7 @@ export type Post = {
   avatar: string;
   avatarColor: string;
   time: string;
-  category: { label: string; color: string; type: 'workout' | 'category' };
+  category: { label: string; color: string; type: 'workout' | 'food' | 'rest' };
   title: string;
   body: string;
   hasImage?: boolean;

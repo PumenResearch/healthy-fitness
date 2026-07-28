@@ -50,7 +50,7 @@ export interface Category {
   id: string
   label: string
   color: string
-  type: 'workout' | 'category'
+  type: 'workout' | 'food' | 'rest'
 }
 
 export async function fetchCategories(): Promise<Category[]> {
@@ -131,7 +131,7 @@ export interface ApiPost {
     id: string
     label: string
     color: string
-    type: 'workout' | 'category'
+    type: 'workout' | 'food' | 'rest'
   }
   images?: { id: string; url: string; position: number }[]
   reactions: Record<string, number>
@@ -162,7 +162,7 @@ export async function fetchStreakLeaderboard(limit = 10): Promise<ApiLeaderboard
   return request<ApiLeaderboardProfile[]>(`/profiles/leaderboard?type=streak&limit=${safeLimit}`)
 }
 
-export type PostFilter = 'all' | 'workout' | 'category'
+export type PostFilter = 'all' | 'workout' | 'food'
 
 export interface FetchPostsResponse {
   posts: ApiPost[]
