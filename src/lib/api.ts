@@ -3,25 +3,42 @@ import { supabase } from './supabase'
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
 
 async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession()
-  const token = session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY
-  return {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
     apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
   }
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) {
+      headers.Authorization = `Bearer ${session.access_token}`
+    }
+  } catch {
+    // No session available
+  }
+  return headers
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = await getAuthHeaders()
-  const res = await fetch(`${FUNCTIONS_URL}${path}`, {
+  const url = `${FUNCTIONS_URL}${path}`
+  const res = await fetch(url, {
     ...options,
     headers: { ...headers, ...(options.headers || {}) },
   })
 
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Request failed')
-  return data as T
+  if (!res.ok) {
+    const text = await res.text()
+    let message = `Request failed (${res.status})`
+    try {
+      const parsed = JSON.parse(text)
+      if (parsed.error) message = parsed.error
+    } catch {
+      if (text) message = text
+    }
+    throw new Error(message)
+  }
+
+  return await res.json() as T
 }
 
 // --- Categories ---
