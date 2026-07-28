@@ -1,6 +1,9 @@
 import { supabase } from './supabase'
 
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
+const POST_IMAGES_BUCKET = 'post-images'
+const MAX_POST_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
+const ALLOWED_POST_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 async function getAuthHeaders() {
   const headers: Record<string, string> = {
@@ -64,7 +67,43 @@ export interface CreatePostPayload {
   duration?: number | null
   calories?: number | null
   pace?: number | null
-  images?: string[]
+  /** Đường dẫn object trong bucket private `post-images` (ảnh user upload) */
+  image_paths?: string[]
+  /** URL ảnh nguồn ngoài (vd ảnh mẫu Unsplash) */
+  image_urls?: string[]
+}
+
+const IMAGE_EXTENSION_BY_TYPE: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+}
+
+/**
+ * Upload ảnh vào bucket private `post-images` và trả về storage path bền vững.
+ * Path luôn bắt đầu bằng user id để khớp Storage RLS.
+ */
+export async function uploadPostImage(file: File): Promise<string> {
+  if (!ALLOWED_POST_IMAGE_TYPES.has(file.type)) {
+    throw new Error('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP')
+  }
+  if (file.size > MAX_POST_IMAGE_SIZE_BYTES) {
+    throw new Error('Ảnh vượt quá dung lượng tối đa 10MB')
+  }
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Bạn cần đăng nhập để tải ảnh lên')
+
+  const extension = IMAGE_EXTENSION_BY_TYPE[file.type]
+  const path = `${user.id}/${crypto.randomUUID()}.${extension}`
+
+  const { error } = await supabase.storage
+    .from(POST_IMAGES_BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false })
+
+  if (error) throw new Error(error.message)
+
+  return path
 }
 
 export interface ApiPost {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
-import { createPost, fetchCategories, type Category, type CreatePostPayload } from '../../../lib/api';
+import { createPost, fetchCategories, uploadPostImage, type Category, type CreatePostPayload } from '../../../lib/api';
 import './CreatePostModal.css';
 
 export interface CreatePostModalProps {
@@ -40,6 +40,8 @@ const GRADIENT_PRESETS = [
 ];
 
 const EMOJI_OPTIONS = ['🏃‍♀️', '🏋️', '🧘', '🚴', '🥗', '💪', '🔥', '🏆', '⚡', '🥑', '🥇', '🎯'];
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const SAMPLE_DEMO_IMAGES = [
   { label: 'Chạy công viên', url: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=80' },
@@ -63,6 +65,8 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
   const [selectedGradient, setSelectedGradient] = useState(GRADIENT_PRESETS[0].value);
   const [selectedEmoji, setSelectedEmoji] = useState('🏃‍♀️');
   const [imageUrl, setImageUrl] = useState('');
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Metrics
   const [showMetrics, setShowMetrics] = useState(true);
@@ -96,6 +100,12 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
     }
   }, [initialCategory, isOpen, categories]);
 
+  useEffect(() => () => {
+    if (selectedImageFile && imageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(imageUrl);
+    }
+  }, [imageUrl, selectedImageFile]);
+
   // Handle ESC key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -115,13 +125,38 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
     setSelectedEmoji(EMOJI_MAP[categories[index].label] || '📝');
   };
 
+  const clearImage = () => {
+    if (selectedImageFile && imageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(imageUrl);
+    }
+    setSelectedImageFile(null);
+    setImageUrl('');
+  };
+
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setImageUrl(objectUrl);
-      setMediaType('image');
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      showToast('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP', 'error');
+      e.target.value = '';
+      return;
     }
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      showToast('Ảnh vượt quá dung lượng tối đa 10MB', 'error');
+      e.target.value = '';
+      return;
+    }
+
+    clearImage();
+    setSelectedImageFile(file);
+    setImageUrl(URL.createObjectURL(file));
+    setMediaType('image');
+  };
+
+  const handleSampleImageSelect = (url: string) => {
+    clearImage();
+    setImageUrl(url);
   };
 
   const resetForm = () => {
@@ -131,7 +166,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
     setDuration('');
     setCalories('');
     setPace('');
-    setImageUrl('');
+    clearImage();
     setShowPreview(false);
     setMediaType('gradient');
     setSelectedGradient(GRADIENT_PRESETS[0].value);
@@ -145,18 +180,29 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
 
     setIsSubmitting(true);
 
-    const payload: CreatePostPayload = {
-      title: title.trim() || `${currentCategory.label} hoàn thành! 💪`,
-      category_id: currentCategory.id,
-      body: body.trim() || undefined,
-      distance: distance.trim() ? parseFloat(distance) || null : null,
-      duration: duration.trim() ? parseFloat(duration) || null : null,
-      calories: calories.trim() ? parseFloat(calories) || null : null,
-      pace: pace.trim() ? parseFloat(pace) || null : null,
-      images: mediaType === 'image' && imageUrl ? [imageUrl] : undefined,
-    };
-
     try {
+      let imagePaths: string[] | undefined;
+      let imageUrls: string[] | undefined;
+
+      if (mediaType === 'image' && selectedImageFile) {
+        setIsUploadingImage(true);
+        imagePaths = [await uploadPostImage(selectedImageFile)];
+      } else if (mediaType === 'image' && imageUrl) {
+        imageUrls = [imageUrl];
+      }
+
+      const payload: CreatePostPayload = {
+        title: title.trim() || `${currentCategory.label} hoàn thành! 💪`,
+        category_id: currentCategory.id,
+        body: body.trim() || undefined,
+        distance: distance.trim() ? parseFloat(distance) || null : null,
+        duration: duration.trim() ? parseFloat(duration) || null : null,
+        calories: calories.trim() ? parseFloat(calories) || null : null,
+        pace: pace.trim() ? parseFloat(pace) || null : null,
+        image_paths: imagePaths,
+        image_urls: imageUrls,
+      };
+
       await createPost(payload);
       showToast('Đăng bài thành công!', 'success');
       resetForm();
@@ -165,6 +211,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
     } catch (err: any) {
       showToast(err.message || 'Đăng bài thất bại', 'error');
     } finally {
+      setIsUploadingImage(false);
       setIsSubmitting(false);
     }
   };
@@ -346,7 +393,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                   {imageUrl ? (
                     <div className="uploaded-image-preview">
                       <img src={imageUrl} alt="Uploaded post preview" />
-                      <button type="button" className="remove-img-btn" onClick={() => setImageUrl('')} title="Xóa ảnh">✕</button>
+                      <button type="button" className="remove-img-btn" onClick={clearImage} title="Xóa ảnh">✕</button>
                     </div>
                   ) : (
                     <div className="upload-dropzone">
@@ -367,7 +414,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                           key={i}
                           type="button"
                           className={`sample-thumb-btn ${imageUrl === img.url ? 'active' : ''}`}
-                          onClick={() => setImageUrl(img.url)}
+                          onClick={() => handleSampleImageSelect(img.url)}
                         >
                           <img src={img.url} alt={img.label} />
                           <span>{img.label}</span>
@@ -442,7 +489,9 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
           <div className="create-post-footer">
             <button type="button" className="btn-cancel" onClick={onClose}>Hủy</button>
             <button type="submit" className="btn-submit-post" disabled={(!title.trim() && !body.trim()) || isSubmitting || !currentCategory}>
-              {isSubmitting ? (
+              {isUploadingImage ? (
+                <span className="submitting-spinner">Đang tải ảnh...</span>
+              ) : isSubmitting ? (
                 <span className="submitting-spinner">Đang đăng bài...</span>
               ) : (
                 <>
