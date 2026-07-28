@@ -146,6 +146,22 @@ export async function createPost(payload: CreatePostPayload): Promise<ApiPost> {
   })
 }
 
+export interface ApiLeaderboardProfile {
+  id: string
+  name: string
+  avatar_text: string | null
+  avatar_color: string | null
+  streak: number
+  longest_streak: number
+  score: number
+  rank: number
+}
+
+export async function fetchStreakLeaderboard(limit = 10): Promise<ApiLeaderboardProfile[]> {
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 50)
+  return request<ApiLeaderboardProfile[]>(`/profiles/leaderboard?type=streak&limit=${safeLimit}`)
+}
+
 export type PostFilter = 'all' | 'workout' | 'category'
 
 export interface FetchPostsResponse {

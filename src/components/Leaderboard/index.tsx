@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { fetchStreakLeaderboard, type ApiLeaderboardProfile } from '../../lib/api';
+import { useAuth } from '../../contexts/AuthContext';
 import './Leaderboard.css';
 
 type RankMetric = 'streak' | 'score';
+type LoadState = 'loading' | 'ready' | 'error';
 
 type LeaderboardUser = {
   id: string;
@@ -11,9 +14,11 @@ type LeaderboardUser = {
   avatarColor: string;
   streak: number;
   score: number;
+  rank?: number;
   isCurrentUser?: boolean;
 };
 
+// Score chưa có cơ chế tính điểm thật, nên giữ nguyên mock data cho tab này.
 const leaderboardUsers: LeaderboardUser[] = [
   { id: 'u1', name: 'Lê Minh Anh', avatar: 'MA', avatarColor: 'linear-gradient(135deg, #e53e3e, #ff6b35)', streak: 47, score: 8420 },
   { id: 'u2', name: 'Huỳnh Gia Huy', avatar: 'GH', avatarColor: 'linear-gradient(135deg, #3b82f6, #6366f1)', streak: 38, score: 6280 },
@@ -59,22 +64,80 @@ const medalIcon = (
 );
 
 const medals: ReactNode[] = [medalIcon, medalIcon, medalIcon];
-
 const formatScore = (value: number) => value.toLocaleString('vi-VN');
 
-export default function Leaderboard({ limit }: { limit?: number }) {
+function mapStreakUser(profile: ApiLeaderboardProfile, currentUserId?: string): LeaderboardUser {
+  return {
+    id: profile.id,
+    name: profile.name,
+    avatar: profile.avatar_text || profile.name.slice(0, 2).toUpperCase(),
+    avatarColor: profile.avatar_color || 'linear-gradient(135deg, #64748b, #334155)',
+    streak: profile.streak,
+    score: profile.score,
+    rank: profile.rank,
+    isCurrentUser: profile.id === currentUserId,
+  };
+}
+
+export default function Leaderboard({ limit = 10 }: { limit?: number }) {
+  const { user } = useAuth();
   const [activeMetric, setActiveMetric] = useState<RankMetric>('streak');
+  const [streakUsers, setStreakUsers] = useState<LeaderboardUser[]>([]);
+  const [streakLoadState, setStreakLoadState] = useState<LoadState>('loading');
+  const requestId = useRef(0);
 
-  const sorted = [...leaderboardUsers].sort((a, b) =>
-    activeMetric === 'streak' ? b.streak - a.streak : b.score - a.score
-  );
+  const loadStreakLeaderboard = useCallback(async () => {
+    const id = ++requestId.current;
+    setStreakLoadState('loading');
 
-  const displayed = limit ? sorted.slice(0, limit) : sorted;
+    try {
+      const data = await fetchStreakLeaderboard(limit);
+      if (id !== requestId.current) return;
 
+      setStreakUsers(data.map(profile => mapStreakUser(profile, user?.id)));
+      setStreakLoadState('ready');
+    } catch {
+      if (id !== requestId.current) return;
+
+      setStreakUsers([]);
+      setStreakLoadState('error');
+    }
+  }, [limit, user?.id]);
+
+  useEffect(() => {
+    void loadStreakLeaderboard();
+  }, [loadStreakLeaderboard]);
+
+  const scoreUsers = [...leaderboardUsers]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((mockUser, index) => ({ ...mockUser, rank: index + 1 }));
+
+  const displayed = activeMetric === 'streak' ? streakUsers : scoreUsers;
   const activeTab = metricTabs.find(t => t.id === activeMetric)!;
+  const renderValue = (leaderboardUser: LeaderboardUser) =>
+    activeMetric === 'streak' ? `${leaderboardUser.streak}` : formatScore(leaderboardUser.score);
 
-  const renderValue = (user: LeaderboardUser) =>
-    activeMetric === 'streak' ? `${user.streak}` : formatScore(user.score);
+  const showStreakState = activeMetric === 'streak' && (streakLoadState !== 'ready' || streakUsers.length === 0);
+
+  const renderStreakState = () => {
+    if (streakLoadState === 'loading') {
+      return <p className="leaderboard-state">Đang tải bảng xếp hạng...</p>;
+    }
+
+    if (streakLoadState === 'error') {
+      return (
+        <div className="leaderboard-state leaderboard-state--error" role="alert">
+          <p>Không thể tải xếp hạng Streak.</p>
+          <button className="leaderboard-retry" type="button" onClick={() => void loadStreakLeaderboard()}>
+            Thử lại
+          </button>
+        </div>
+      );
+    }
+
+    return <p className="leaderboard-state">Chưa có dữ liệu Streak.</p>;
+  };
 
   return (
     <section className="dashboard-card leaderboard-card">
@@ -87,6 +150,7 @@ export default function Leaderboard({ limit }: { limit?: number }) {
           {metricTabs.map(tab => (
             <button
               key={tab.id}
+              type="button"
               role="tab"
               aria-selected={activeMetric === tab.id}
               className={`leaderboard-tab ${activeMetric === tab.id ? 'active' : ''}`}
@@ -99,40 +163,39 @@ export default function Leaderboard({ limit }: { limit?: number }) {
         </div>
       </div>
 
-      <ol className="leaderboard-list">
-        {displayed.map((user, index) => {
-          const rank = index + 1;
-          const isTop3 = rank <= 3;
-          return (
-            <li
-              key={user.id}
-              className={`leaderboard-row ${user.isCurrentUser ? 'is-current' : ''} ${isTop3 ? `top-${rank}` : ''}`}
-            >
-              <span className="leaderboard-rank">
-                {isTop3 ? <span className="leaderboard-medal">{medals[index]}</span> : rank}
-              </span>
-              <div className="leaderboard-avatar" style={{ background: user.avatarColor }}>
-                {user.avatar}
-              </div>
-              <div className="leaderboard-info">
-                <span className="leaderboard-name">
-                  {user.name}
+      {showStreakState ? renderStreakState() : (
+        <ol className="leaderboard-list">
+          {displayed.map((leaderboardUser, index) => {
+            const rank = leaderboardUser.rank ?? index + 1;
+            const isTop3 = rank <= 3;
+            return (
+              <li
+                key={leaderboardUser.id}
+                className={`leaderboard-row ${leaderboardUser.isCurrentUser ? 'is-current' : ''} ${isTop3 ? `top-${rank}` : ''}`}
+              >
+                <span className="leaderboard-rank">
+                  {isTop3 ? <span className="leaderboard-medal">{medals[rank - 1]}</span> : rank}
                 </span>
-                <span className="leaderboard-sub">
-                  {activeMetric === 'streak'
-                    ? `${formatScore(user.score)} điểm`
-                    : `${user.streak} ngày chuỗi`}
-                </span>
-              </div>
-              <div className="leaderboard-value">
-                <span className="leaderboard-value-num">{renderValue(user)}</span>
-                <span className="leaderboard-value-unit">{activeTab.unit}</span>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-
+                <div className="leaderboard-avatar" style={{ background: leaderboardUser.avatarColor }}>
+                  {leaderboardUser.avatar}
+                </div>
+                <div className="leaderboard-info">
+                  <span className="leaderboard-name">{leaderboardUser.name}</span>
+                  <span className="leaderboard-sub">
+                    {activeMetric === 'streak'
+                      ? `${formatScore(leaderboardUser.score)} điểm`
+                      : `${leaderboardUser.streak} ngày chuỗi`}
+                  </span>
+                </div>
+                <div className="leaderboard-value">
+                  <span className="leaderboard-value-num">{renderValue(leaderboardUser)}</span>
+                  <span className="leaderboard-value-unit">{activeTab.unit}</span>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
     </section>
   );
 }
