@@ -2,6 +2,26 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import { createPost, fetchCategories, uploadPostImage, type Category, type CreatePostPayload } from '../../../lib/api';
+import StreakTag from './FeedPost/StreakTag';
+import {
+  CategoryIcon,
+  IconClock,
+  IconEye,
+  IconEyeOff,
+  IconFlame,
+  IconGlobe,
+  IconImage,
+  IconLock,
+  IconPalette,
+  IconRoute,
+  IconTrendingUp,
+  IconUpload,
+  IconUsers,
+  IconX,
+  IconZap,
+  MediaIcon,
+  MEDIA_ICON_OPTIONS,
+} from './icons';
 import './CreatePostModal.css';
 
 export interface CreatePostModalProps {
@@ -11,12 +31,19 @@ export interface CreatePostModalProps {
   initialCategory?: string;
 }
 
-const EMOJI_MAP: Record<string, string> = {
-  'Chạy bộ': '🏃‍♀️',
-  'Ăn uống': '🥗',
-  'Gym': '🏋️',
-  'Ngày nghỉ': '😴',
-  'Cardio': '🚴',
+const PRIVACY_ICON: Record<'public' | 'friends' | 'private', React.ReactNode> = {
+  public: <IconGlobe size={13} />,
+  friends: <IconUsers size={13} />,
+  private: <IconLock size={13} />,
+};
+
+/* Danh mục -> id biểu tượng mặc định cho bìa */
+const CATEGORY_ICON_ID: Record<string, string> = {
+  'Chạy bộ': 'run',
+  'Ăn uống': 'meal',
+  'Gym': 'dumbbell',
+  'Ngày nghỉ': 'rest',
+  'Cardio': 'bike',
 };
 
 const PLACEHOLDER_MAP: Record<string, string> = {
@@ -35,7 +62,6 @@ const GRADIENT_PRESETS = [
   { id: 'berry-punch', name: 'Hồng Đam mê', value: 'linear-gradient(135deg, #ec4899 0%, #f43f5e 60%, #fb7185 100%)' },
 ];
 
-const EMOJI_OPTIONS = ['🏃‍♀️', '🏋️', '🧘', '🚴', '🥗', '💪', '🔥', '🏆', '⚡', '🥑', '🥇', '🎯'];
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -59,7 +85,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
   // Media options
   const [mediaType, setMediaType] = useState<'gradient' | 'image'>('gradient');
   const [selectedGradient, setSelectedGradient] = useState(GRADIENT_PRESETS[0].value);
-  const [selectedEmoji, setSelectedEmoji] = useState('🏃‍♀️');
+  const [selectedIconId, setSelectedIconId] = useState('run');
   const [imageUrl, setImageUrl] = useState('');
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -91,7 +117,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
       const idx = categories.findIndex(c => c.label.toLowerCase() === initialCategory.toLowerCase());
       if (idx !== -1) {
         setCategoryIndex(idx);
-        setSelectedEmoji(EMOJI_MAP[categories[idx].label] || '📝');
+        setSelectedIconId(CATEGORY_ICON_ID[categories[idx].label] || 'activity');
       }
     }
   }, [initialCategory, isOpen, categories]);
@@ -118,7 +144,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
 
   const handleCategorySelect = (index: number) => {
     setCategoryIndex(index);
-    setSelectedEmoji(EMOJI_MAP[categories[index].label] || '📝');
+    setSelectedIconId(CATEGORY_ICON_ID[categories[index].label] || 'activity');
   };
 
   const clearImage = () => {
@@ -166,7 +192,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
     setShowPreview(false);
     setMediaType('gradient');
     setSelectedGradient(GRADIENT_PRESETS[0].value);
-    setSelectedEmoji('🏃‍♀️');
+    setSelectedIconId('run');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -230,17 +256,23 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
               <div>
                 <div className="modal-user-name">
                   {profile?.name || 'Người dùng'}
-                  {profile?.streak ? <span className="modal-streak-badge">🔥 {profile.streak} ngày</span> : null}
+                  {profile?.streak ? (
+                    <span className="modal-streak-badge">
+                      <IconFlame size={12} />
+                      {profile.streak} ngày
+                    </span>
+                  ) : null}
                 </div>
                 <div className="privacy-selector">
+                  <span className="privacy-icon">{PRIVACY_ICON[privacy]}</span>
                   <select
                     value={privacy}
                     onChange={e => setPrivacy(e.target.value as any)}
                     className="privacy-select"
                   >
-                    <option value="public">🌍 Công khai</option>
-                    <option value="friends">👥 Bạn bè</option>
-                    <option value="private">🔒 Chỉ mình tôi</option>
+                    <option value="public">Công khai</option>
+                    <option value="friends">Bạn bè</option>
+                    <option value="private">Chỉ mình tôi</option>
                   </select>
                 </div>
               </div>
@@ -264,7 +296,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                 style={{ '--chip-color': cat.color } as React.CSSProperties}
                 onClick={() => handleCategorySelect(idx)}
               >
-                <span>{EMOJI_MAP[cat.label] || '📝'}</span>
+                <CategoryIcon label={cat.label} />
                 <span>{cat.label}</span>
               </button>
             ))}
@@ -316,19 +348,19 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
               {showMetrics && (
                 <div className="metrics-grid">
                   <div className="metric-input-group">
-                    <label>📏 Khoảng cách (km)</label>
+                    <label><IconRoute size={13} /> Khoảng cách (km)</label>
                     <input type="number" step="0.1" placeholder="vd: 5.2" value={distance} onChange={e => setDistance(e.target.value)} />
                   </div>
                   <div className="metric-input-group">
-                    <label>⏱️ Thời gian (phút)</label>
+                    <label><IconClock size={13} /> Thời gian (phút)</label>
                     <input type="number" step="1" placeholder="vd: 45" value={duration} onChange={e => setDuration(e.target.value)} />
                   </div>
                   <div className="metric-input-group">
-                    <label>🔥 Calo tiêu thụ</label>
+                    <label><IconFlame size={13} /> Calo tiêu thụ</label>
                     <input type="number" step="1" placeholder="vd: 350" value={calories} onChange={e => setCalories(e.target.value)} />
                   </div>
                   <div className="metric-input-group">
-                    <label>⚡ Pace (phút/km)</label>
+                    <label><IconZap size={13} /> Pace (phút/km)</label>
                     <input type="number" step="0.01" placeholder="vd: 5.15" value={pace} onChange={e => setPace(e.target.value)} />
                   </div>
                 </div>
@@ -339,22 +371,22 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
             <div className="modal-section">
               <div className="media-tabs">
                 <button type="button" className={`media-tab ${mediaType === 'gradient' ? 'active' : ''}`} onClick={() => setMediaType('gradient')}>
-                  🎨 Bìa Gradient & Emoji
+                  <IconPalette size={15} /> Bìa Gradient &amp; Biểu tượng
                 </button>
                 <button type="button" className={`media-tab ${mediaType === 'image' ? 'active' : ''}`} onClick={() => setMediaType('image')}>
-                  📸 Hình ảnh
+                  <IconImage size={15} /> Hình ảnh
                 </button>
               </div>
 
               {mediaType === 'gradient' ? (
                 <div className="gradient-customizer">
                   <div className="gradient-preview" style={{ background: selectedGradient }}>
-                    <span className="gradient-preview-emoji">{selectedEmoji}</span>
+                    <span className="gradient-preview-icon"><MediaIcon id={selectedIconId} size={56} /></span>
                     <div className="gradient-preview-metrics">
-                      {distance && <span>📈 {distance} km</span>}
-                      {duration && <span>⏱️ {duration} phút</span>}
-                      {calories && <span>🔥 {calories} kcal</span>}
-                      {pace && <span>⚡ {pace} /km</span>}
+                      {distance && <span><IconTrendingUp size={13} /> {distance} km</span>}
+                      {duration && <span><IconClock size={13} /> {duration} phút</span>}
+                      {calories && <span><IconFlame size={13} /> {calories} kcal</span>}
+                      {pace && <span><IconZap size={13} /> {pace} /km</span>}
                     </div>
                   </div>
 
@@ -377,9 +409,17 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                   <div className="emoji-options">
                     <label className="sub-label">Biểu tượng chính:</label>
                     <div className="emoji-chips">
-                      {EMOJI_OPTIONS.map(emo => (
-                        <button key={emo} type="button" className={`emoji-chip ${selectedEmoji === emo ? 'active' : ''}`} onClick={() => setSelectedEmoji(emo)}>
-                          {emo}
+                      {MEDIA_ICON_OPTIONS.map(opt => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          className={`emoji-chip ${selectedIconId === opt.id ? 'active' : ''}`}
+                          title={opt.label}
+                          aria-label={opt.label}
+                          aria-pressed={selectedIconId === opt.id}
+                          onClick={() => setSelectedIconId(opt.id)}
+                        >
+                          <MediaIcon id={opt.id} size={18} />
                         </button>
                       ))}
                     </div>
@@ -390,13 +430,15 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                   {imageUrl ? (
                     <div className="uploaded-image-preview">
                       <img src={imageUrl} alt="Uploaded post preview" />
-                      <button type="button" className="remove-img-btn" onClick={clearImage} title="Xóa ảnh">✕</button>
+                      <button type="button" className="remove-img-btn" onClick={clearImage} title="Xóa ảnh" aria-label="Xóa ảnh">
+                        <IconX size={16} />
+                      </button>
                     </div>
                   ) : (
                     <div className="upload-dropzone">
                       <input type="file" accept="image/*" id="post-img-file" className="file-input-hidden" onChange={handleImageFileChange} />
                       <label htmlFor="post-img-file" className="upload-label">
-                        <div className="upload-icon">📷</div>
+                        <div className="upload-icon"><IconUpload size={30} /></div>
                         <div><strong>Nhấp để chọn ảnh</strong> hoặc kéo thả vào đây</div>
                         <span className="upload-hint">Hỗ trợ JPG, PNG, WebP</span>
                       </label>
@@ -427,11 +469,16 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
             <div className="post-options-bar">
               <label className="streak-toggle-checkbox">
                 <input type="checkbox" checked={includeStreak} onChange={e => setIncludeStreak(e.target.checked)} />
-                <span>Gắn Badge Chuỗi Luyện Tập (🔥 {profile?.streak || 0} ngày)</span>
+                <span className="streak-toggle-label">
+                  Gắn Badge Chuỗi Luyện Tập
+                  <IconFlame size={13} />
+                  {profile?.streak || 0} ngày
+                </span>
               </label>
 
               <button type="button" className={`preview-toggle-btn ${showPreview ? 'active' : ''}`} onClick={() => setShowPreview(!showPreview)}>
-                👁️ {showPreview ? 'Ẩn xem trước' : 'Xem trước bài đăng'}
+                {showPreview ? <IconEyeOff size={14} /> : <IconEye size={14} />}
+                {showPreview ? 'Ẩn xem trước' : 'Xem trước bài đăng'}
               </button>
             </div>
 
@@ -447,7 +494,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                     <div className="post-meta">
                       <div className="post-author-row">
                         <span className="post-author">{profile?.name || 'Người dùng'}</span>
-                        {includeStreak && profile?.streak ? <span className="streak-tag streak-tag--consistent">🔥 {profile.streak} ngày</span> : null}
+                        {includeStreak && profile?.streak ? <StreakTag streak={profile.streak} /> : null}
                         <span className="post-category" style={{ background: `${categoryColor}1f`, color: categoryColor }}>
                           {categoryLabel}
                         </span>
@@ -466,13 +513,13 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                     )}
                     {mediaType === 'gradient' && (
                       <div className="post-media" style={{ background: selectedGradient }}>
-                        <span className="post-media-emoji">{selectedEmoji}</span>
+                        <span className="post-media-icon"><MediaIcon id={selectedIconId} size={64} /></span>
                         {(distance || duration || calories || pace) && (
                           <div className="post-media-metrics">
-                            {distance && <span>📈 {distance} km</span>}
-                            {duration && <span>⏱️ {duration} phút</span>}
-                            {calories && <span>🔥 {calories} kcal</span>}
-                            {pace && <span>⚡ {pace} /km</span>}
+                            {distance && <span><IconTrendingUp size={13} /> {distance} km</span>}
+                            {duration && <span><IconClock size={13} /> {duration} phút</span>}
+                            {calories && <span><IconFlame size={13} /> {calories} kcal</span>}
+                            {pace && <span><IconZap size={13} /> {pace} /km</span>}
                           </div>
                         )}
                       </div>

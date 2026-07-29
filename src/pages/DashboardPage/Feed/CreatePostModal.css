@@ -93,6 +93,9 @@
 }
 
 .modal-streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.72rem;
   padding: 2px 8px;
   border-radius: 999px;
@@ -103,7 +106,20 @@
 }
 
 .privacy-selector {
+  position: relative;
   margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Icon line hiển thị bên trong pill, select nằm chồng phía trên */
+.privacy-icon {
+  position: absolute;
+  left: 9px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--dash-text-secondary, #a0aec0);
+  pointer-events: none;
 }
 
 .privacy-select {
@@ -111,7 +127,7 @@
   background: var(--dash-surface-1, rgba(255, 255, 255, 0.06));
   border: 1px solid var(--dash-border, rgba(255, 255, 255, 0.1));
   color: var(--dash-text-secondary, #a0aec0);
-  padding: 3px 22px 3px 10px;
+  padding: 3px 22px 3px 27px;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -174,6 +190,10 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.category-chip svg {
+  flex: 0 0 auto;
 }
 
 .category-chip:hover {
@@ -323,9 +343,17 @@
 }
 
 .metric-input-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--dash-text-secondary, #94a3b8);
+}
+
+.metric-input-group label svg {
+  flex: 0 0 auto;
+  color: var(--dash-text-muted, #64748b);
 }
 
 .metric-input-group input {
@@ -352,6 +380,10 @@
 
 .media-tab {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   padding: 8px 12px;
   border-radius: 10px;
   border: 1px solid transparent;
@@ -397,13 +429,14 @@
   background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.5) 100%);
 }
 
-.gradient-preview-emoji {
+.gradient-preview-icon {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -55%);
-  font-size: 3.2rem;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+  display: inline-flex;
+  color: rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45));
   z-index: 1;
 }
 
@@ -418,6 +451,9 @@
 }
 
 .gradient-preview-metrics span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 10px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.45);
@@ -473,7 +509,7 @@
   background: var(--dash-surface-2, rgba(255, 255, 255, 0.05));
   display: grid;
   place-items: center;
-  font-size: 1.2rem;
+  color: var(--dash-text-secondary, #94a3b8);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -481,11 +517,13 @@
 .emoji-chip:hover {
   transform: scale(1.15);
   background: var(--dash-bg-hover, rgba(255, 255, 255, 0.1));
+  color: var(--dash-text-primary, #fff);
 }
 
 .emoji-chip.active {
   border-color: var(--dash-primary, #e53e3e);
   background: rgba(229, 62, 62, 0.2);
+  color: var(--dash-accent, #ff6b35);
   transform: scale(1.12);
 }
 
@@ -555,8 +593,13 @@
 }
 
 .upload-icon {
-  font-size: 2rem;
+  display: inline-flex;
+  color: var(--dash-text-muted, #64748b);
   margin-bottom: 2px;
+}
+
+.upload-dropzone:hover .upload-icon {
+  color: var(--dash-accent, #ff6b35);
 }
 
 .upload-hint {
@@ -633,6 +676,16 @@
   cursor: pointer;
 }
 
+.streak-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.streak-toggle-label svg {
+  color: var(--dash-accent, #ff6b35);
+}
+
 .streak-toggle-checkbox input[type="checkbox"] {
   accent-color: var(--dash-primary, #e53e3e);
   width: 16px;
@@ -641,6 +694,9 @@
 }
 
 .preview-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: transparent;
   border: 1px solid var(--dash-border, rgba(255, 255, 255, 0.12));
   color: var(--dash-text-secondary, #cbd5e1);
@@ -675,6 +731,18 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 10px;
+}
+
+/* Biểu tượng line trên bìa gradient của thẻ xem trước */
+.post-media-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%);
+  display: inline-flex;
+  color: rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.45));
+  z-index: 1;
 }
 
 .preview-card {
