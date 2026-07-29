@@ -122,13 +122,29 @@
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
 }
 
+/* Lấp khoảng trống bằng chính ảnh đã phóng to + làm mờ */
+.post-media-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Scale để mép blur không bị hở viền */
+  transform: scale(1.15);
+  filter: blur(26px) saturate(1.3) brightness(0.72);
+  pointer-events: none;
+  user-select: none;
+  display: block;
+}
+
 .post-media-img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Ép ảnh theo đúng tỉ lệ khung post: không crop, không khoảng trống */
-  object-fit: fill;
+  /* Giữ trọn tỉ lệ gốc, phần thiếu do backdrop lấp */
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 

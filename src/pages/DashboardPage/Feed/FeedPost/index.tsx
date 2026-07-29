@@ -67,6 +67,7 @@ export default function FeedPost({
         {post.hasImage && (
           post.imageUrl ? (
             <div className="post-media post-media--image">
+              <img src={post.imageUrl} alt="" aria-hidden="true" className="post-media-backdrop" />
               <img src={post.imageUrl} alt={post.title || 'Post image'} className="post-media-img" />
               {(post.metrics.distance || post.metrics.duration || post.metrics.calories || post.metrics.pace) && (
                 <div className="post-media-metrics">

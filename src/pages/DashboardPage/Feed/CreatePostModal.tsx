@@ -460,6 +460,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                     <p className="post-text">{body || 'Nội dung bài đăng sẽ hiển thị ở đây...'}</p>
                     {mediaType === 'image' && imageUrl && (
                       <div className="post-media post-media--image">
+                        <img src={imageUrl} alt="" aria-hidden="true" className="post-media-backdrop" />
                         <img src={imageUrl} alt="Preview" className="post-media-img" />
                       </div>
                     )}
