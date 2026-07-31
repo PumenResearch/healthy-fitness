@@ -101,8 +101,8 @@ const fetchByMetric: Record<RankMetric, (limit: number) => Promise<ApiLeaderboar
 const metricUnit: Record<RankMetric, string> = {
   streak: 'ngày',
   score: 'điểm',
-  tien_canh_score: 'điểm TC',
-  tien_canh_streak: 'ngày TC',
+  tien_canh_score: 'điểm',
+  tien_canh_streak: 'ngày',
 };
 
 export default function Leaderboard({
@@ -153,8 +153,8 @@ export default function Leaderboard({
 
   const renderSub = (leaderboardUser: LeaderboardUser): string => {
     switch (activeMetric) {
-      case 'tien_canh_score': return `${leaderboardUser.tienCanhStreak} ngày chuỗi TC`;
-      case 'tien_canh_streak': return `${formatScore(leaderboardUser.tienCanhScore)} điểm TC`;
+      case 'tien_canh_score': return `${leaderboardUser.tienCanhStreak} ngày chuỗi`;
+      case 'tien_canh_streak': return `${formatScore(leaderboardUser.tienCanhScore)} điểm`;
       case 'score': return `${leaderboardUser.streak} ngày chuỗi`;
       default: return `${formatScore(leaderboardUser.score)} điểm`;
     }
