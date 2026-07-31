@@ -50,7 +50,7 @@ export interface Category {
   id: string
   label: string
   color: string
-  type: 'workout' | 'food' | 'rest'
+  type: 'workout' | 'food' | 'rest' | 'secret'
 }
 
 export async function fetchCategories(): Promise<Category[]> {
@@ -62,6 +62,7 @@ export async function fetchCategories(): Promise<Category[]> {
 export interface CreatePostPayload {
   title: string
   category_id: string
+  channel?: PostChannel
   body?: string
   distance?: number | null
   duration?: number | null
@@ -112,6 +113,7 @@ export interface ApiPost {
   title: string
   body: string
   category_id: string
+  channel: PostChannel
   distance: number | null
   duration: number | null
   calories: number | null
@@ -131,7 +133,7 @@ export interface ApiPost {
     id: string
     label: string
     color: string
-    type: 'workout' | 'food' | 'rest'
+    type: 'workout' | 'food' | 'rest' | 'secret'
   }
   images?: { id: string; url: string; position: number }[]
   reactions: Record<string, number>
@@ -162,7 +164,13 @@ export async function fetchStreakLeaderboard(limit = 10): Promise<ApiLeaderboard
   return request<ApiLeaderboardProfile[]>(`/profiles/leaderboard?type=streak&limit=${safeLimit}`)
 }
 
+export async function fetchScoreLeaderboard(limit = 10): Promise<ApiLeaderboardProfile[]> {
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 50)
+  return request<ApiLeaderboardProfile[]>(`/profiles/leaderboard?type=score&limit=${safeLimit}`)
+}
+
 export type PostFilter = 'all' | 'workout' | 'food'
+export type PostChannel = 'feed' | 'tien_canh'
 
 export interface FetchPostsResponse {
   posts: ApiPost[]
@@ -173,11 +181,13 @@ export async function fetchPosts(params: {
   page?: number
   limit?: number
   filter?: PostFilter
+  channel?: PostChannel
 } = {}): Promise<FetchPostsResponse> {
   const searchParams = new URLSearchParams()
   if (params.page) searchParams.set('page', String(params.page))
   if (params.limit) searchParams.set('limit', String(params.limit))
   if (params.filter && params.filter !== 'all') searchParams.set('filter', params.filter)
+  if (params.channel) searchParams.set('channel', params.channel)
 
   const qs = searchParams.toString()
   return request(`/posts${qs ? `?${qs}` : ''}`)

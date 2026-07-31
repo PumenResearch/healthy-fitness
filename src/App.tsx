@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './components/DashboardLayout'
 import Feed from './pages/DashboardPage/Feed'
 import ComingSoon from './pages/ComingSoon'
+import ProgressPage from './pages/ProgressPage'
 
 function App() {
   return (
@@ -23,9 +24,10 @@ function App() {
               <Route element={<DashboardLayout />}>
                 <Route path="/dashboard" element={<ComingSoon title="Tổng quan" />} />
                 <Route path="/feed" element={<Feed />} />
+                <Route path="/tien-canh" element={<Feed channel="tien_canh" />} />
                 <Route path="/workouts" element={<ComingSoon title="Bài tập" />} />
                 <Route path="/nutrition" element={<ComingSoon title="Dinh dưỡng" />} />
-                <Route path="/progress" element={<ComingSoon title="Tiến trình" />} />
+                <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/schedule" element={<ComingSoon title="Lịch tập" />} />
                 <Route path="/settings" element={<ComingSoon title="Cài đặt" />} />
               </Route>

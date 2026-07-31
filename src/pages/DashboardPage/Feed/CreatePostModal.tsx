@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
-import { createPost, fetchCategories, uploadPostImage, type Category, type CreatePostPayload } from '../../../lib/api';
+import { createPost, fetchCategories, uploadPostImage, type Category, type CreatePostPayload, type PostChannel } from '../../../lib/api';
 import StreakTag from './FeedPost/StreakTag';
 import {
   CategoryIcon,
@@ -29,6 +29,7 @@ export interface CreatePostModalProps {
   onClose: () => void;
   onPostCreated: () => void;
   initialCategory?: string;
+  channel?: PostChannel;
 }
 
 const PRIVACY_ICON: Record<'public' | 'friends' | 'private', React.ReactNode> = {
@@ -72,7 +73,7 @@ const SAMPLE_DEMO_IMAGES = [
   { label: 'Tập Yoga', url: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80' },
 ];
 
-export default function CreatePostModal({ isOpen, onClose, onPostCreated, initialCategory }: CreatePostModalProps) {
+export default function CreatePostModal({ isOpen, onClose, onPostCreated, initialCategory, channel = 'feed' }: CreatePostModalProps) {
   const { profile, refreshProfile } = useAuth();
   const { showToast } = useToast();
 
@@ -101,6 +102,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
   const [includeStreak, setIncludeStreak] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isTienCanh = channel === 'tien_canh';
 
   // Fetch categories from API
   useEffect(() => {
@@ -197,7 +199,8 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!body.trim() && !title.trim()) return;
+    if (isTienCanh && !selectedImageFile) return;
+    if (!isTienCanh && !body.trim() && !title.trim()) return;
     if (!currentCategory) return;
 
     setIsSubmitting(true);
@@ -213,21 +216,29 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
         imageUrls = [imageUrl];
       }
 
-      const payload: CreatePostPayload = {
-        title: title.trim() || `${currentCategory.label} hoàn thành! 💪`,
-        category_id: currentCategory.id,
-        body: body.trim() || undefined,
-        distance: distance.trim() ? parseFloat(distance) || null : null,
-        duration: duration.trim() ? parseFloat(duration) || null : null,
-        calories: calories.trim() ? parseFloat(calories) || null : null,
-        pace: pace.trim() ? parseFloat(pace) || null : null,
-        image_paths: imagePaths,
-        image_urls: imageUrls,
-      };
+      const payload: CreatePostPayload = isTienCanh
+        ? {
+            title: 'Ảnh Tiên cảnh',
+            category_id: categories.find(category => category.type === 'secret')?.id || categories.find(category => category.type === 'workout')?.id || currentCategory.id,
+            channel,
+            image_paths: imagePaths,
+          }
+        : {
+            title: title.trim() || `${currentCategory.label} hoàn thành! 💪`,
+            category_id: currentCategory.id,
+            channel,
+            body: body.trim() || undefined,
+            distance: distance.trim() ? parseFloat(distance) || null : null,
+            duration: duration.trim() ? parseFloat(duration) || null : null,
+            calories: calories.trim() ? parseFloat(calories) || null : null,
+            pace: pace.trim() ? parseFloat(pace) || null : null,
+            image_paths: imagePaths,
+            image_urls: imageUrls,
+          };
 
       await createPost(payload);
       void refreshProfile();
-      showToast('Đăng bài thành công!', 'success');
+      showToast(channel === 'tien_canh' ? 'Đã đăng bài lên Tiên cảnh!' : 'Đăng bài thành công!', 'success');
       resetForm();
       onPostCreated();
       onClose();
@@ -242,6 +253,39 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
   const categoryLabel = currentCategory?.label || '';
   const categoryColor = currentCategory?.color || '#10b981';
   const placeholder = PLACEHOLDER_MAP[categoryLabel] || 'Chia sẻ hoạt động của bạn...';
+
+  if (isTienCanh) {
+    return (
+      <div className="create-post-overlay" onClick={onClose}>
+        <div className="create-post-modal tien-canh-image-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Đăng ảnh lên Tiên cảnh">
+          <form onSubmit={handleSubmit} className="create-post-form">
+            <div className="tien-canh-image-panel">
+              {imageUrl ? (
+                <div className="uploaded-image-preview">
+                  <img src={imageUrl} alt="Ảnh đã chọn" />
+                  <button type="button" className="remove-img-btn" onClick={clearImage} aria-label="Xóa ảnh">×</button>
+                </div>
+              ) : (
+                <div className="upload-dropzone">
+                  <input type="file" accept="image/jpeg,image/png,image/webp" id="tien-canh-img-file" className="file-input-hidden" onChange={handleImageFileChange} />
+                  <label htmlFor="tien-canh-img-file" className="upload-label">
+                    <strong>Chọn ảnh để tải lên</strong>
+                    <span className="upload-hint">JPG, PNG hoặc WebP · Tối đa 10MB</span>
+                  </label>
+                </div>
+              )}
+            </div>
+            <div className="create-post-footer">
+              <button type="button" className="btn-cancel" onClick={onClose}>Hủy</button>
+              <button type="submit" className="btn-submit-post" disabled={!selectedImageFile || isSubmitting || !currentCategory}>
+                {isUploadingImage ? 'Đang tải ảnh...' : isSubmitting ? 'Đang đăng...' : 'Đăng ảnh'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="create-post-overlay" onClick={onClose}>
@@ -288,13 +332,13 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
 
           {/* Category Chips */}
           <div className="category-chips">
-            {categories.map((cat, idx) => (
+            {categories.filter(cat => cat.type !== 'secret').map((cat) => (
               <button
                 key={cat.id}
                 type="button"
-                className={`category-chip ${categoryIndex === idx ? 'active' : ''}`}
+                className={`category-chip ${categories.indexOf(cat) === categoryIndex ? 'active' : ''}`}
                 style={{ '--chip-color': cat.color } as React.CSSProperties}
-                onClick={() => handleCategorySelect(idx)}
+                onClick={() => handleCategorySelect(categories.indexOf(cat))}
               >
                 <CategoryIcon label={cat.label} />
                 <span>{cat.label}</span>

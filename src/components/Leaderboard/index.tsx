@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { fetchStreakLeaderboard, type ApiLeaderboardProfile } from '../../lib/api';
+import { fetchScoreLeaderboard, fetchStreakLeaderboard, type ApiLeaderboardProfile } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import './Leaderboard.css';
 
@@ -17,18 +17,6 @@ type LeaderboardUser = {
   rank?: number;
   isCurrentUser?: boolean;
 };
-
-// Score chưa có cơ chế tính điểm thật, nên giữ nguyên mock data cho tab này.
-const leaderboardUsers: LeaderboardUser[] = [
-  { id: 'u1', name: 'Lê Minh Anh', avatar: 'MA', avatarColor: 'linear-gradient(135deg, #e53e3e, #ff6b35)', streak: 47, score: 8420 },
-  { id: 'u2', name: 'Huỳnh Gia Huy', avatar: 'GH', avatarColor: 'linear-gradient(135deg, #3b82f6, #6366f1)', streak: 38, score: 6280 },
-  { id: 'u3', name: 'Đặng Quốc Bảo', avatar: 'QB', avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)', streak: 31, score: 7150 },
-  { id: 'u4', name: 'Võ Thảo Nguyên', avatar: 'TN', avatarColor: 'linear-gradient(135deg, #8b5cf6, #ec4899)', streak: 24, score: 5940 },
-  { id: 'u5', name: 'Nguyễn Thành', avatar: 'NT', avatarColor: 'linear-gradient(135deg, #e53e3e, #ff6b35)', streak: 15, score: 4320, isCurrentUser: true },
-  { id: 'u6', name: 'Bùi Minh Tâm', avatar: 'MT', avatarColor: 'linear-gradient(135deg, #ec4899, #f43f5e)', streak: 12, score: 3870 },
-  { id: 'u7', name: 'Phạm Khang', avatar: 'PK', avatarColor: 'linear-gradient(135deg, #10b981, #059669)', streak: 9, score: 6800 },
-  { id: 'u8', name: 'Bùi Đức', avatar: 'BD', avatarColor: 'linear-gradient(135deg, #f59e0b, #f97316)', streak: 6, score: 2540 },
-];
 
 const flameIcon = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -66,7 +54,7 @@ const medalIcon = (
 const medals: ReactNode[] = [medalIcon, medalIcon, medalIcon];
 const formatScore = (value: number) => value.toLocaleString('vi-VN');
 
-function mapStreakUser(profile: ApiLeaderboardProfile, currentUserId?: string): LeaderboardUser {
+function mapProfile(profile: ApiLeaderboardProfile, currentUserId?: string): LeaderboardUser {
   return {
     id: profile.id,
     name: profile.name,
@@ -79,74 +67,83 @@ function mapStreakUser(profile: ApiLeaderboardProfile, currentUserId?: string): 
   };
 }
 
-export default function Leaderboard({ limit = 10 }: { limit?: number }) {
-  const { user } = useAuth();
-  const [activeMetric, setActiveMetric] = useState<RankMetric>('streak');
-  const [streakUsers, setStreakUsers] = useState<LeaderboardUser[]>([]);
-  const [streakLoadState, setStreakLoadState] = useState<LoadState>('loading');
-  const requestId = useRef(0);
+type LeaderboardProps = {
+  limit?: number;
+  metric?: RankMetric;
+  title?: string;
+  period?: string;
+};
 
-  const loadStreakLeaderboard = useCallback(async () => {
+export default function Leaderboard({
+  limit = 10,
+  metric,
+  title = 'Bảng xếp hạng',
+  period = 'Tuần này',
+}: LeaderboardProps) {
+  const { user } = useAuth();
+  const [selectedMetric, setSelectedMetric] = useState<RankMetric>('streak');
+  const [users, setUsers] = useState<LeaderboardUser[]>([]);
+  const [loadState, setLoadState] = useState<LoadState>('loading');
+  const requestId = useRef(0);
+  const activeMetric = metric ?? selectedMetric;
+  const activeTab = metricTabs.find(t => t.id === activeMetric)!;
+
+  const loadLeaderboard = useCallback(async () => {
     const id = ++requestId.current;
-    setStreakLoadState('loading');
+    setLoadState('loading');
 
     try {
-      const data = await fetchStreakLeaderboard(limit);
+      const data = await (activeMetric === 'score'
+        ? fetchScoreLeaderboard(limit)
+        : fetchStreakLeaderboard(limit));
       if (id !== requestId.current) return;
 
-      setStreakUsers(data.map(profile => mapStreakUser(profile, user?.id)));
-      setStreakLoadState('ready');
+      setUsers(data.map(profile => mapProfile(profile, user?.id)));
+      setLoadState('ready');
     } catch {
       if (id !== requestId.current) return;
 
-      setStreakUsers([]);
-      setStreakLoadState('error');
+      setUsers([]);
+      setLoadState('error');
     }
-  }, [limit, user?.id]);
+  }, [activeMetric, limit, user?.id]);
 
   useEffect(() => {
-    void loadStreakLeaderboard();
-  }, [loadStreakLeaderboard]);
+    void loadLeaderboard();
+  }, [loadLeaderboard]);
 
-  const scoreUsers = [...leaderboardUsers]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
-    .map((mockUser, index) => ({ ...mockUser, rank: index + 1 }));
-
-  const displayed = activeMetric === 'streak' ? streakUsers : scoreUsers;
-  const activeTab = metricTabs.find(t => t.id === activeMetric)!;
   const renderValue = (leaderboardUser: LeaderboardUser) =>
     activeMetric === 'streak' ? `${leaderboardUser.streak}` : formatScore(leaderboardUser.score);
 
-  const showStreakState = activeMetric === 'streak' && (streakLoadState !== 'ready' || streakUsers.length === 0);
+  const showState = loadState !== 'ready' || users.length === 0;
 
-  const renderStreakState = () => {
-    if (streakLoadState === 'loading') {
+  const renderState = () => {
+    if (loadState === 'loading') {
       return <p className="leaderboard-state">Đang tải bảng xếp hạng...</p>;
     }
 
-    if (streakLoadState === 'error') {
+    if (loadState === 'error') {
       return (
         <div className="leaderboard-state leaderboard-state--error" role="alert">
-          <p>Không thể tải xếp hạng Streak.</p>
-          <button className="leaderboard-retry" type="button" onClick={() => void loadStreakLeaderboard()}>
+          <p>Không thể tải xếp hạng {activeTab.label}.</p>
+          <button className="leaderboard-retry" type="button" onClick={() => void loadLeaderboard()}>
             Thử lại
           </button>
         </div>
       );
     }
 
-    return <p className="leaderboard-state">Chưa có dữ liệu Streak.</p>;
+    return <p className="leaderboard-state">Chưa có dữ liệu {activeTab.label}.</p>;
   };
 
   return (
     <section className="dashboard-card leaderboard-card">
       <div className="leaderboard-head">
         <div className="leaderboard-title-wrap">
-          <h2 className="card-title leaderboard-title">Bảng xếp hạng</h2>
-          <span className="leaderboard-period">Tuần này</span>
+          <h2 className="card-title leaderboard-title">{title}</h2>
+          <span className="leaderboard-period">{period}</span>
         </div>
-        <div className="leaderboard-tabs" role="tablist" aria-label="Chọn thống số xếp hạng">
+        {!metric && <div className="leaderboard-tabs" role="tablist" aria-label="Chọn thống số xếp hạng">
           {metricTabs.map(tab => (
             <button
               key={tab.id}
@@ -154,18 +151,18 @@ export default function Leaderboard({ limit = 10 }: { limit?: number }) {
               role="tab"
               aria-selected={activeMetric === tab.id}
               className={`leaderboard-tab ${activeMetric === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveMetric(tab.id)}
+              onClick={() => setSelectedMetric(tab.id)}
             >
               <span className="leaderboard-tab-icon">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
-        </div>
+        </div>}
       </div>
 
-      {showStreakState ? renderStreakState() : (
+      {showState ? renderState() : (
         <ol className="leaderboard-list">
-          {displayed.map((leaderboardUser, index) => {
+          {users.map((leaderboardUser, index) => {
             const rank = leaderboardUser.rank ?? index + 1;
             const isTop3 = rank <= 3;
             return (

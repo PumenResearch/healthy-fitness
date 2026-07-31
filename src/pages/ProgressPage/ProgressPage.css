@@ -1,0 +1,192 @@
+.progress-page {
+  width: min(100%, 1020px);
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+.progress-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.progress-kicker {
+  display: inline-flex;
+  margin-bottom: 10px;
+  color: #ff9a7c;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.rank-tree-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 7px 0 0;
+  list-style: none;
+}
+
+.rank-tree-list::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 34px;
+  left: 27px;
+  width: 2px;
+  background: var(--dash-border-strong);
+}
+
+.rank-tree-list::before { background: linear-gradient(#0ea5e9 0%, #10b981 22%, #f97316 38%, #facc15 58%, #ef4444 76%, #d946ef 100%); }
+
+.rank-node {
+  position: relative;
+  display: grid;
+  grid-template-columns: 55px minmax(0, 1fr);
+  gap: 13px;
+  min-height: 66px;
+}
+
+.rank-node-rail { position: relative; display: flex; justify-content: center; }
+.rank-node-marker {
+  position: relative;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--dash-border-strong);
+  border-radius: 50%;
+  color: var(--dash-text-muted);
+  background: var(--dash-bg-panel-strong);
+}
+
+.rank-node-vertical-link { position: absolute; top: 34px; bottom: -1px; width: 2px; background: transparent; }
+
+.rank-node-content {
+  position: relative;
+  min-width: 0;
+  align-self: start;
+  margin-bottom: 16px;
+  padding-top: 1px;
+}
+
+.rank-node-horizontal-link {
+  position: absolute;
+  top: 17px;
+  left: -14px;
+  width: 14px;
+  height: 2px;
+  background: var(--dash-border-strong);
+}
+
+.rank-node h3 { margin: 0; line-height: 1; }
+
+/* Rank tags are previews: rank name itself carries the visual effect. */
+.rank-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid;
+  border-radius: 999px;
+  background-size: 260% 100%;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Bậc 1–3: tĩnh, không nền/animation. */
+.rank-tag--lower.rank-tag--rank-1 { color: #d1d5db; border-color: #6b7280; background: transparent; box-shadow: none; animation: none; }
+.rank-tag--lower.rank-tag--rank-2 { color: #86efac; border-color: #22c55e; background: transparent; box-shadow: 0 0 10px rgba(34, 197, 94, 0.36), 0 0 22px rgba(34, 197, 94, 0.16); animation: rankTagGlowGreen 2.2s ease-in-out infinite; }
+.rank-tag--lower.rank-tag--rank-3 { color: #93c5fd; border-color: #3b82f6; background: transparent; box-shadow: 0 0 10px rgba(59, 130, 246, 0.38), 0 0 24px rgba(59, 130, 246, 0.18); animation: rankTagGlowBlue 2.1s ease-in-out infinite; }
+.rank-tag--lower.rank-tag--rank-4 { color: #c4b5fd; border-color: rgba(139, 92, 246, 0.56); background-image: linear-gradient(105deg, rgba(76, 29, 149, 0.42), rgba(124, 58, 237, 0.36), rgba(6, 182, 212, 0.28), rgba(76, 29, 149, 0.42)); box-shadow: 0 0 14px rgba(139, 92, 246, 0.23); animation: rankTagFlow 2.5s linear infinite; }
+.rank-tag--lower.rank-tag--rank-5 { color: #a5f3fc; border-color: rgba(34, 211, 238, 0.56); background-image: linear-gradient(105deg, rgba(21, 94, 117, 0.42), rgba(8, 145, 178, 0.36), rgba(34, 211, 238, 0.28), rgba(21, 94, 117, 0.42)); box-shadow: 0 0 14px rgba(34, 211, 238, 0.24); animation: rankTagFlow 2.4s linear infinite; }
+
+/* Trung Cảnh: metallic gold -> red. */
+.rank-tag--middle { color: #fff2ae; border-color: rgba(250, 204, 21, 0.76); background-image: linear-gradient(105deg, #713f12, #ca8a04, #facc15, #f97316, #dc2626, #713f12); box-shadow: 0 0 23px rgba(250, 204, 21, 0.42); animation: rankTagFlow 2.4s linear infinite, rankTagMetallic 1.8s ease-in-out infinite; }
+.rank-tag--middle.rank-tag--rank-7 { color: #fed7aa; border-color: rgba(249, 115, 22, 0.82); background-image: linear-gradient(105deg, #9a3412, #f97316, #facc15, #ef4444, #9a3412); }
+.rank-tag--middle.rank-tag--rank-8 { color: #fecaca; border-color: rgba(239, 68, 68, 0.82); background-image: linear-gradient(105deg, #7f1d1d, #dc2626, #f97316, #facc15, #7f1d1d); }
+
+/* Thượng Cảnh: the highest rank receives a rainbow flowing aura. */
+.rank-tag--upper { color: #fff7ed; border-color: rgba(251, 191, 36, 0.9); background-image: linear-gradient(100deg, #facc15, #f97316, #ef4444, #d946ef, #8b5cf6, #06b6d4, #facc15); box-shadow: 0 0 30px rgba(217, 70, 239, 0.54); animation: rankTagRainbow 2.7s linear infinite; }
+
+/* Bậc 6–9: VFX wings live behind the badge; rank text stays clean above it. */
+.rank-tag--rank-6,
+.rank-tag--rank-7,
+.rank-tag--rank-8,
+.rank-tag--rank-9 { position: relative; isolation: isolate; overflow: visible; }
+.rank-tag-label { position: relative; z-index: 2; }
+.rank-tag-surface { position: absolute; z-index: 1; inset: 1px; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.rank-tag-vfx { position: absolute; z-index: -1; inset: 0; pointer-events: none; }
+.rank-tag-wing { position: absolute; top: 50%; transform-origin: center right; }
+.rank-tag-wing--left { left: -31px; }
+.rank-tag-wing--right { right: -31px; transform: scaleX(-1); }
+
+/* Luyện Hư: compact golden crane-feather wings + shimmer sweep. */
+.rank-tag--rank-6 .rank-tag-wing { width: 34px; height: 23px; margin-top: -12px; background: linear-gradient(135deg, #7c4a03, #facc15 48%, #fff3ae 70%, #a16207); clip-path: polygon(100% 47%, 75% 32%, 85% 11%, 58% 27%, 57% 0, 38% 27%, 24% 7%, 25% 35%, 0 24%, 18% 49%, 0 66%, 28% 63%, 18% 88%, 48% 71%, 63% 100%, 71% 70%); filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.8)); }
+.rank-tag--rank-6 .rank-tag-wing--left { animation: rankFeatherLeft 1.8s ease-in-out infinite; }
+.rank-tag--rank-6 .rank-tag-wing--right { animation: rankFeatherRight 1.8s ease-in-out infinite; }
+.rank-tag--rank-6 .rank-tag-surface::after { content: ''; position: absolute; top: -100%; width: 32%; height: 300%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.82), transparent); transform: rotate(18deg); animation: rankLightSweep 2.4s ease-in-out infinite; }
+
+/* Hợp Thể: sharp flame wings + heatwave. */
+.rank-tag--rank-7 .rank-tag-wing { width: 41px; height: 32px; margin-top: -16px; background: linear-gradient(140deg, #7f1d1d 4%, #ef4444 42%, #f97316 67%, #facc15 100%); clip-path: polygon(100% 49%, 73% 41%, 91% 3%, 58% 30%, 55% 0, 41% 31%, 22% 9%, 28% 40%, 0 28%, 17% 52%, 0 70%, 30% 65%, 17% 95%, 52% 72%, 64% 100%, 70% 67%); filter: drop-shadow(0 0 7px rgba(249, 115, 22, 0.88)); }
+.rank-tag--rank-7 .rank-tag-wing--left { animation: rankFlameLeft 1.05s ease-in-out infinite; }
+.rank-tag--rank-7 .rank-tag-wing--right { animation: rankFlameRight 1.05s ease-in-out infinite; }
+.rank-tag--rank-7 .rank-tag-surface::after { content: ''; position: absolute; inset: -45% -10%; background: repeating-radial-gradient(ellipse at 50% 110%, rgba(255, 226, 143, 0.34) 0 3px, transparent 5px 11px); mix-blend-mode: screen; animation: rankHeatwave 1.1s linear infinite; }
+
+/* Đại Thừa: wide Dragoon wings + powerful crimson heartbeat. */
+.rank-tag--rank-8 .rank-tag-wing { width: 52px; height: 38px; margin-top: -19px; background: linear-gradient(145deg, #450a0a, #991b1b 38%, #ef4444 68%, #7f1d1d); clip-path: polygon(100% 48%, 78% 37%, 91% 6%, 64% 28%, 62% 0, 49% 25%, 34% 2%, 34% 32%, 7% 13%, 20% 43%, 0 38%, 15% 55%, 0 75%, 31% 66%, 23% 95%, 51% 74%, 68% 100%, 72% 66%); filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.9)); }
+.rank-tag--rank-8 .rank-tag-wing--left { animation: rankDragonLeft 1.45s cubic-bezier(.36, .07, .19, .97) infinite; }
+.rank-tag--rank-8 .rank-tag-wing--right { animation: rankDragonRight 1.45s cubic-bezier(.36, .07, .19, .97) infinite; }
+.rank-tag--rank-8 .rank-tag-surface { animation: rankCrimsonHeartbeat 1.45s cubic-bezier(.36, .07, .19, .97) infinite; }
+
+/* Độ Kiếp: three-tier celestial wings, halo, lightning orbit, falling spirit particles. */
+.rank-tag--rank-9 .rank-tag-wing { width: 57px; height: 45px; margin-top: -23px; background: linear-gradient(145deg, #7e22ce, #ec4899 30%, #facc15 58%, #fde68a 74%, #a855f7); clip-path: polygon(100% 48%, 77% 37%, 92% 7%, 65% 29%, 65% 0, 51% 27%, 37% 3%, 35% 35%, 7% 10%, 23% 43%, 0 29%, 16% 54%, 0 76%, 31% 66%, 18% 97%, 52% 75%, 68% 100%, 72% 66%); filter: drop-shadow(0 0 9px rgba(236, 72, 153, 0.88)) drop-shadow(0 0 14px rgba(250, 204, 21, 0.5)); animation: rankCelestialWing 2.1s ease-in-out infinite; }
+.rank-tag--rank-9 .rank-tag-wing--right { transform: scaleX(-1); animation-direction: reverse; }
+.rank-tag--rank-9 .rank-tag-wing::before, .rank-tag--rank-9 .rank-tag-wing::after { content: ''; position: absolute; right: 1px; width: 75%; height: 62%; background: inherit; clip-path: inherit; opacity: 0.82; }
+.rank-tag--rank-9 .rank-tag-wing::before { top: -10px; transform: scale(0.72); }
+.rank-tag--rank-9 .rank-tag-wing::after { bottom: -11px; transform: scale(0.57); opacity: 0.58; }
+.rank-tag-halo { position: absolute; top: -20px; left: 50%; width: 58%; height: 17px; border: 2px solid #fde68a; border-bottom-color: transparent; border-radius: 50%; filter: drop-shadow(0 0 6px #facc15); transform: translateX(-50%); animation: rankHaloOrbit 2.5s linear infinite; }
+.rank-tag-lightning-orbit { position: absolute; inset: -8px -15px; border-radius: inherit; border-top: 2px dashed rgba(255, 255, 255, 0.95); border-right: 2px solid rgba(217, 70, 239, 0.8); filter: drop-shadow(0 0 5px #d946ef); animation: rankLightningOrbit 1.25s linear infinite; }
+.rank-tag-particles { position: absolute; inset: -17px -13px; background: radial-gradient(circle, #fff 0 1px, transparent 2px) 10% 5% / 24px 28px, radial-gradient(circle, #facc15 0 1.5px, transparent 2.5px) 65% 16% / 31px 33px, radial-gradient(circle, #f0abfc 0 1px, transparent 2px) 34% 52% / 28px 31px; animation: rankParticlesFall 2.2s linear infinite; }
+
+.rank-node-marker { font-size: 0.72rem; font-weight: 900; }
+.rank-node--rank-1 .rank-node-marker { color: #d1d5db; border-color: #6b7280; background: var(--dash-bg-app); box-shadow: none; }
+.rank-node--rank-2 .rank-node-marker { color: #86efac; border-color: #22c55e; background: var(--dash-bg-app); animation: rankMarkerGlowGreen 2.2s ease-in-out infinite; }
+.rank-node--rank-3 .rank-node-marker { color: #93c5fd; border-color: #3b82f6; background: var(--dash-bg-app); animation: rankMarkerGlowBlue 2.1s ease-in-out infinite; }
+.rank-node--rank-4 .rank-node-marker { color: #c4b5fd; border-color: rgba(139, 92, 246, 0.65); background: var(--dash-bg-app); box-shadow: 0 0 12px rgba(139, 92, 246, 0.25); }
+.rank-node--rank-5 .rank-node-marker { color: #a5f3fc; border-color: rgba(34, 211, 238, 0.68); background: var(--dash-bg-app); box-shadow: 0 0 13px rgba(34, 211, 238, 0.27); }
+.rank-node--rank-6 .rank-node-marker { color: #fff2ae; border-color: rgba(250, 204, 21, 0.72); background: var(--dash-bg-app); box-shadow: 0 0 18px rgba(250, 204, 21, 0.32); }
+.rank-node--rank-7 .rank-node-marker { color: #fed7aa; border-color: rgba(249, 115, 22, 0.82); background: var(--dash-bg-app); box-shadow: 0 0 19px rgba(249, 115, 22, 0.36); }
+.rank-node--rank-8 .rank-node-marker { color: #fecaca; border-color: rgba(239, 68, 68, 0.82); background: var(--dash-bg-app); box-shadow: 0 0 20px rgba(239, 68, 68, 0.38); }
+.rank-node--rank-9 .rank-node-marker { color: #fff; border-color: rgba(251, 191, 36, 0.88); background: var(--dash-bg-app); box-shadow: 0 0 25px rgba(217, 70, 239, 0.56); }
+
+@keyframes rankTagGlowSoft { 0%, 100% { box-shadow: 0 0 9px rgba(20, 184, 166, 0.16); } 50% { box-shadow: 0 0 18px rgba(20, 184, 166, 0.38); } }
+@keyframes rankTagGlowMedium { 0%, 100% { box-shadow: 0 0 12px rgba(132, 204, 22, 0.2); } 50% { box-shadow: 0 0 25px rgba(132, 204, 22, 0.48); } }
+@keyframes rankTagGlowGreen { 0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.25), 0 0 17px rgba(34, 197, 94, 0.1); } 50% { box-shadow: 0 0 13px rgba(34, 197, 94, 0.58), 0 0 30px rgba(34, 197, 94, 0.24); } }
+@keyframes rankTagGlowBlue { 0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.27), 0 0 18px rgba(59, 130, 246, 0.1); } 50% { box-shadow: 0 0 14px rgba(59, 130, 246, 0.62), 0 0 32px rgba(59, 130, 246, 0.25); } }
+@keyframes rankMarkerGlowGreen { 0%, 100% { box-shadow: 0 0 7px rgba(34, 197, 94, 0.23); } 50% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.56); } }
+@keyframes rankMarkerGlowBlue { 0%, 100% { box-shadow: 0 0 7px rgba(59, 130, 246, 0.25); } 50% { box-shadow: 0 0 16px rgba(59, 130, 246, 0.6); } }
+@keyframes rankTagFlow { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+@keyframes rankTagMetallic { 0%, 100% { filter: brightness(0.95); } 50% { filter: brightness(1.27); } }
+@keyframes rankTagRainbow { from { background-position: 0% 50%; } to { background-position: 250% 50%; } }
+@keyframes rankMarkerPulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.12), 0 0 18px rgba(255, 107, 53, 0.42); } 50% { box-shadow: 0 0 0 9px rgba(229, 62, 62, 0.03), 0 0 31px rgba(255, 107, 53, 0.74); } }
+@keyframes rankLightningStrike { 0%, 59%, 100% { opacity: 0; transform: scale(0.35) rotate(-18deg); } 62% { opacity: 1; transform: scale(1.2) rotate(7deg); } 68% { opacity: 0.28; transform: scale(0.78) rotate(-6deg); } 73% { opacity: 0.95; transform: scale(1.05) rotate(3deg); } 78% { opacity: 0; transform: scale(0.5) rotate(-12deg); } }
+@keyframes rankOuterHue { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
+
+@media (max-width: 680px) {
+  .progress-hero { align-items: stretch; flex-direction: column; gap: 14px; }
+  .rank-node { grid-template-columns: 43px minmax(0, 1fr); gap: 10px; }
+  .rank-tree-list::before { left: 21px; }
+  .rank-node-marker { width: 30px; height: 30px; }
+  .rank-node-vertical-link { top: 30px; }
+  .rank-node-horizontal-link { top: 15px; left: -11px; width: 11px; }
+}

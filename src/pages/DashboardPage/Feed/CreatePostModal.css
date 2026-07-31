@@ -751,6 +751,40 @@
   border: 1px solid var(--dash-border, rgba(255, 255, 255, 0.08)) !important;
 }
 
+/* ===== Tiên cảnh image-only modal ===== */
+.tien-canh-image-modal {
+  max-width: 520px;
+}
+
+.tien-canh-image-panel {
+  position: relative;
+  padding: 22px;
+}
+
+.tien-canh-image-panel .modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+}
+
+.tien-canh-image-panel .upload-dropzone {
+  min-height: 230px;
+  display: grid;
+  place-items: center;
+}
+
+.tien-canh-image-panel .uploaded-image-preview {
+  max-height: 440px;
+}
+
+.tien-canh-image-panel .uploaded-image-preview img {
+  height: auto;
+  max-height: 440px;
+  object-fit: contain;
+  background: var(--dash-surface-1, rgba(255, 255, 255, 0.04));
+}
+
 /* ===== Footer ===== */
 .create-post-footer {
   padding: 16px 22px;

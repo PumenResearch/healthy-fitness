@@ -22,6 +22,12 @@ const navItems = [
       <path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6Z"></path>
     </svg>
   )},
+  { id: 'tien-canh', label: 'Tiên cảnh', path: '/tien-canh', icon: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2a7 7 0 1 0 7 7c0-1-.2-2-.6-2.9A8 8 0 1 1 12 2Z"></path>
+      <path d="m19 3 .6 1.4L21 5l-1.4.6L19 7l-.6-1.4L17 5l1.4-.6L19 3Z"></path>
+    </svg>
+  )},
   { id: 'workouts', label: 'Bài tập', path: '/workouts', icon: (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6.5 6.5h-3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h3M17.5 6.5h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-3M6.5 4v16M17.5 4v16M6.5 12h11"/>
@@ -81,7 +87,7 @@ export default function DashboardLayout() {
     }
   }, [theme]);
 
-  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+  const toggleSidebar = () => setSidebarCollapsed(prev => !prev);
   const openMobileSidebar = () => setMobileSidebarOpen(true);
   const closeMobileSidebar = () => setMobileSidebarOpen(false);
   const toggleTheme = () => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
@@ -102,7 +108,14 @@ export default function DashboardLayout() {
             </svg>
           </div>
           {!sidebarCollapsed && <span className="brand-name">HEALTHY FITNESS</span>}
-          <button className="sidebar-toggle" onClick={toggleSidebar} aria-label="Thu gọn thanh bên" aria-expanded={!sidebarCollapsed}>
+          <button
+            type="button"
+            className="sidebar-toggle"
+            onClick={toggleSidebar}
+            aria-label={sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'}
+            aria-expanded={!sidebarCollapsed}
+            title={sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'}
+          >
             <svg className={`chevron-icon ${sidebarCollapsed ? 'rotated' : ''}`} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>

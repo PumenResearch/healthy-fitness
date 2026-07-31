@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Leaderboard from '../../../components/Leaderboard';
 import FeedPost from './FeedPost';
 import CreatePostModal from './CreatePostModal';
-import { fetchPosts, type ApiPost, type PostFilter } from '../../../lib/api';
+import { fetchPosts, type ApiPost, type PostChannel, type PostFilter } from '../../../lib/api';
 import { useToast } from '../../../contexts/ToastContext';
 import type { Post, ReactionKey, Comment } from './types';
 import './Feed.css';
@@ -65,7 +65,11 @@ const filters: { id: PostFilter; label: string }[] = [
 
 type LoadState = 'loading' | 'ready' | 'error';
 
-export default function Feed() {
+type FeedProps = {
+  channel?: PostChannel;
+};
+
+export default function Feed({ channel = 'feed' }: FeedProps) {
   const { showToast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [activeFilter, setActiveFilter] = useState<PostFilter>('all');
@@ -83,7 +87,7 @@ export default function Feed() {
     setLoadState('loading');
 
     try {
-      const data = await fetchPosts({ limit: 20, filter: activeFilter });
+      const data = await fetchPosts({ limit: 20, filter: activeFilter, channel });
       if (requestId !== loadRequestId.current) return;
 
       setPosts(data.posts.map(apiPostToLocal));
@@ -95,7 +99,7 @@ export default function Feed() {
       setLoadState('error');
       showToast('Không thể tải bài viết. Vui lòng thử lại.', 'error');
     }
-  }, [activeFilter, showToast]);
+  }, [activeFilter, channel, showToast]);
 
   useEffect(() => {
     void loadPosts();
@@ -163,13 +167,21 @@ export default function Feed() {
   };
 
   const activeFilterLabel = filters.find(filter => filter.id === activeFilter)?.label || 'đã chọn';
+  const isTienCanh = channel === 'tien_canh';
+  const pageTitle = isTienCanh ? 'Tiên cảnh' : 'Bảng tin';
+  const pageSubtitle = isTienCanh
+    ? 'Không gian chia sẻ riêng của cộng đồng Healthy Fitness'
+    : 'Cập nhật hoạt động và chia sẻ thành tích cùng cộng đồng Healthy Fitness';
+  const composerPlaceholder = isTienCanh
+    ? 'Bạn muốn chia sẻ điều gì với Tiên cảnh?'
+    : 'Bạn vừa tập gì hôm nay? Chia sẻ ngay...';
 
   return (
     <>
       <div className="welcome-section feed-header">
         <div>
-          <h1 className="welcome-title">Bảng tin</h1>
-          <p className="welcome-subtitle">Cập nhật hoạt động và chia sẻ thành tích cùng cộng đồng Healthy Fitness</p>
+          <h1 className="welcome-title">{pageTitle}</h1>
+          <p className="welcome-subtitle">{pageSubtitle}</p>
         </div>
       </div>
 
@@ -182,7 +194,7 @@ export default function Feed() {
                 className="composer-input"
                 onClick={() => handleOpenModal()}
               >
-                Bạn vừa tập gì hôm nay? Chia sẻ ngay...
+                {composerPlaceholder}
               </button>
               <button
                 className="feed-new-post-btn"
@@ -197,17 +209,19 @@ export default function Feed() {
             </div>
           </div>
 
-          <div className="feed-filters">
-            {filters.map(f => (
-              <button
-                key={f.id}
-                className={`feed-filter ${activeFilter === f.id ? 'active' : ''}`}
-                onClick={() => setActiveFilter(f.id)}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          {!isTienCanh && (
+            <div className="feed-filters">
+              {filters.map(f => (
+                <button
+                  key={f.id}
+                  className={`feed-filter ${activeFilter === f.id ? 'active' : ''}`}
+                  onClick={() => setActiveFilter(f.id)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="feed-posts" aria-live="polite">
             {loadState === 'loading' && (
@@ -251,7 +265,12 @@ export default function Feed() {
         </div>
 
         <aside className="feed-sidebar">
-          <Leaderboard limit={5} />
+          <Leaderboard
+            limit={5}
+            metric={isTienCanh ? 'score' : 'streak'}
+            title={isTienCanh ? 'Xếp hạng Tiên cảnh' : 'Bảng xếp hạng'}
+            period={isTienCanh ? 'Tổng điểm tu luyện' : 'Tuần này'}
+          />
         </aside>
       </div>
 
@@ -260,6 +279,7 @@ export default function Feed() {
         onClose={() => setIsModalOpen(false)}
         onPostCreated={handlePostCreated}
         initialCategory={modalCategory}
+        channel={channel}
       />
     </>
   );
