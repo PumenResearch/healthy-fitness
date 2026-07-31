@@ -4,6 +4,7 @@ export type CultivationLevel = {
   id: string;
   rank: number;
   name: string;
+  requiredPoints: number;
   description: string;
   status: LevelStatus;
   progress?: number;

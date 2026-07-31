@@ -8,6 +8,7 @@ import {
   type ApiLeaderboardProfile,
 } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { getCultivationRank } from '../../pages/ProgressPage/cultivationRanks';
 import './Leaderboard.css';
 
 type RankMetric = 'streak' | 'score' | 'tien_canh_score' | 'tien_canh_streak';
@@ -215,13 +216,19 @@ export default function Leaderboard({
           {users.map((leaderboardUser, index) => {
             const rank = leaderboardUser.rank ?? index + 1;
             const isTop3 = rank <= 3;
+            const cultivationRank = activeMetric === 'tien_canh_score'
+              ? getCultivationRank(leaderboardUser.tienCanhScore)
+              : null;
             return (
               <li
                 key={leaderboardUser.id}
                 className={`leaderboard-row ${leaderboardUser.isCurrentUser ? 'is-current' : ''} ${isTop3 ? `top-${rank}` : ''}`}
               >
-                <span className="leaderboard-rank">
-                  {isTop3 ? <span className="leaderboard-medal">{medals[rank - 1]}</span> : rank}
+                <span
+                  className={`leaderboard-rank${cultivationRank ? ` leaderboard-rank--${cultivationRank.theme} leaderboard-rank--rank-${cultivationRank.rank}` : ''}`}
+                  title={cultivationRank ? `${cultivationRank.name} · ${cultivationRank.threshold.toLocaleString('vi-VN')} điểm` : undefined}
+                >
+                  {cultivationRank ? rank : isTop3 ? <span className="leaderboard-medal">{medals[rank - 1]}</span> : rank}
                 </span>
                 <div className="leaderboard-avatar" style={{ background: leaderboardUser.avatarColor }}>
                   {leaderboardUser.avatar}

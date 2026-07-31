@@ -17,7 +17,14 @@ export default function RankNode({ level, rankTheme, isLast }: RankNodeProps) {
 
       <div className="rank-node-content">
         <span className="rank-node-horizontal-link" aria-hidden="true" />
-        <h3><RankTag name={level.name} rank={level.rank} theme={rankTheme} /></h3>
+        <h3>
+          <RankTag
+            name={level.name}
+            rank={level.rank}
+            theme={rankTheme}
+            requiredPoints={level.requiredPoints}
+          />
+        </h3>
       </div>
     </li>
   );

@@ -2,6 +2,8 @@ import type { Post, ReactionKey } from '../types';
 import { reactionMeta } from '../constants.tsx';
 import StreakTag from './StreakTag';
 import ScoreTag from './ScoreTag';
+import RankTag from '../../../ProgressPage/RankTag';
+import { getCultivationRank } from '../../../ProgressPage/cultivationRanks';
 import './FeedPost.css';
 
 interface FeedPostProps {
@@ -16,6 +18,7 @@ interface FeedPostProps {
   onToggleComments: (postId: string) => void;
   onDraftChange: (postId: string, value: string) => void;
   onSubmitComment: (postId: string) => void;
+  isTienCanh: boolean;
 }
 
 export default function FeedPost({
@@ -30,8 +33,10 @@ export default function FeedPost({
   onToggleComments,
   onDraftChange,
   onSubmitComment,
+  isTienCanh,
 }: FeedPostProps) {
   const totalReactions = Object.values(post.reactions).reduce((a, b) => a + b, 0);
+  const cultivationRank = post.score == null ? null : getCultivationRank(post.score);
 
   return (
     <article className="feed-post dashboard-card" style={{ animationDelay: `${index * 80}ms` }}>
@@ -40,14 +45,22 @@ export default function FeedPost({
         <div className="post-meta">
           <div className="post-author-row">
             <span className="post-author">{post.author}</span>
-            {post.category.type === 'workout' ? (
+            {isTienCanh && cultivationRank ? (
+              <RankTag
+                name={cultivationRank.name}
+                rank={cultivationRank.rank}
+                theme={cultivationRank.theme}
+              />
+            ) : post.category.type === 'workout' ? (
               <StreakTag streak={post.streak} />
             ) : (
               post.score != null && <ScoreTag score={post.score} />
             )}
-            <span className="post-category" style={{ background: `${post.category.color}1f`, color: post.category.color }}>
-              {post.category.label}
-            </span>
+            {post.category.type !== 'secret' && (
+              <span className="post-category" style={{ background: `${post.category.color}1f`, color: post.category.color }}>
+                {post.category.label}
+              </span>
+            )}
           </div>
           <span className="post-time">{post.time}</span>
         </div>

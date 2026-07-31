@@ -53,7 +53,9 @@ function apiPostToLocal(apiPost: ApiPost): Post {
     topReaction: (apiPost.topReaction as ReactionKey) || 'like',
     comments: [],
     streak: apiPost.streak_snapshot,
-    score: apiPost.score_snapshot ?? undefined,
+    score: apiPost.channel === 'tien_canh'
+      ? apiPost.author.score
+      : apiPost.score_snapshot ?? undefined,
   };
 }
 
@@ -259,6 +261,7 @@ export default function Feed({ channel = 'feed' }: FeedProps) {
                 onToggleComments={toggleComments}
                 onDraftChange={handleDraftChange}
                 onSubmitComment={submitComment}
+                isTienCanh={isTienCanh}
               />
             ))}
           </div>
