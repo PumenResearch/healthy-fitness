@@ -3,7 +3,7 @@ import type { CultivationLevel, CultivationPhase } from './types';
 
 const ranksById = Object.fromEntries(cultivationRanks.map(rank => [rank.id, rank]));
 
-type LevelDetails = Omit<CultivationLevel, 'id' | 'rank' | 'name'>;
+type LevelDetails = Omit<CultivationLevel, 'id' | 'rank' | 'name' | 'requiredPoints'>;
 
 function level(id: string, details: LevelDetails): CultivationLevel {
   const rank = ranksById[id];
