@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { fetchScoreLeaderboard, fetchStreakLeaderboard, type ApiLeaderboardProfile } from '../../lib/api';
+import {
+  fetchScoreLeaderboard,
+  fetchStreakLeaderboard,
+  fetchTienCanhScoreLeaderboard,
+  fetchTienCanhStreakLeaderboard,
+  type ApiLeaderboardProfile,
+} from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import './Leaderboard.css';
 
-type RankMetric = 'streak' | 'score';
+type RankMetric = 'streak' | 'score' | 'tien_canh_score' | 'tien_canh_streak';
 type LoadState = 'loading' | 'ready' | 'error';
 
 type LeaderboardUser = {
@@ -14,6 +20,8 @@ type LeaderboardUser = {
   avatarColor: string;
   streak: number;
   score: number;
+  tienCanhScore: number;
+  tienCanhStreak: number;
   rank?: number;
   isCurrentUser?: boolean;
 };
@@ -32,6 +40,13 @@ const trophyIcon = (
     <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
     <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
     <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+  </svg>
+);
+
+// Icon ngôi sao cho Tiên cảnh
+const starIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
   </svg>
 );
 
@@ -62,6 +77,8 @@ function mapProfile(profile: ApiLeaderboardProfile, currentUserId?: string): Lea
     avatarColor: profile.avatar_color || 'linear-gradient(135deg, #64748b, #334155)',
     streak: profile.streak,
     score: profile.score,
+    tienCanhScore: profile.tien_canh_score ?? 0,
+    tienCanhStreak: profile.tien_canh_streak ?? 0,
     rank: profile.rank,
     isCurrentUser: profile.id === currentUserId,
   };
@@ -72,6 +89,20 @@ type LeaderboardProps = {
   metric?: RankMetric;
   title?: string;
   period?: string;
+};
+
+const fetchByMetric: Record<RankMetric, (limit: number) => Promise<ApiLeaderboardProfile[]>> = {
+  streak: fetchStreakLeaderboard,
+  score: fetchScoreLeaderboard,
+  tien_canh_score: fetchTienCanhScoreLeaderboard,
+  tien_canh_streak: fetchTienCanhStreakLeaderboard,
+};
+
+const metricUnit: Record<RankMetric, string> = {
+  streak: 'ngày',
+  score: 'điểm',
+  tien_canh_score: 'điểm TC',
+  tien_canh_streak: 'ngày TC',
 };
 
 export default function Leaderboard({
@@ -86,16 +117,15 @@ export default function Leaderboard({
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const requestId = useRef(0);
   const activeMetric = metric ?? selectedMetric;
-  const activeTab = metricTabs.find(t => t.id === activeMetric)!;
+  const activeTab = metricTabs.find(t => t.id === activeMetric) ?? metricTabs[0];
+  const unit = metricUnit[activeMetric];
 
   const loadLeaderboard = useCallback(async () => {
     const id = ++requestId.current;
     setLoadState('loading');
 
     try {
-      const data = await (activeMetric === 'score'
-        ? fetchScoreLeaderboard(limit)
-        : fetchStreakLeaderboard(limit));
+      const data = await fetchByMetric[activeMetric](limit);
       if (id !== requestId.current) return;
 
       setUsers(data.map(profile => mapProfile(profile, user?.id)));
@@ -112,8 +142,23 @@ export default function Leaderboard({
     void loadLeaderboard();
   }, [loadLeaderboard]);
 
-  const renderValue = (leaderboardUser: LeaderboardUser) =>
-    activeMetric === 'streak' ? `${leaderboardUser.streak}` : formatScore(leaderboardUser.score);
+  const renderValue = (leaderboardUser: LeaderboardUser): string => {
+    switch (activeMetric) {
+      case 'tien_canh_score': return formatScore(leaderboardUser.tienCanhScore);
+      case 'tien_canh_streak': return String(leaderboardUser.tienCanhStreak);
+      case 'score': return formatScore(leaderboardUser.score);
+      default: return String(leaderboardUser.streak);
+    }
+  };
+
+  const renderSub = (leaderboardUser: LeaderboardUser): string => {
+    switch (activeMetric) {
+      case 'tien_canh_score': return `${leaderboardUser.tienCanhStreak} ngày chuỗi TC`;
+      case 'tien_canh_streak': return `${formatScore(leaderboardUser.tienCanhScore)} điểm TC`;
+      case 'score': return `${leaderboardUser.streak} ngày chuỗi`;
+      default: return `${formatScore(leaderboardUser.score)} điểm`;
+    }
+  };
 
   const showState = loadState !== 'ready' || users.length === 0;
 
@@ -135,6 +180,11 @@ export default function Leaderboard({
 
     return <p className="leaderboard-state">Chưa có dữ liệu {activeTab.label}.</p>;
   };
+
+  // Icon hiển thị bên cạnh value
+  const valueIcon = (activeMetric === 'tien_canh_score' || activeMetric === 'tien_canh_streak')
+    ? starIcon
+    : activeMetric === 'streak' ? flameIcon : trophyIcon;
 
   return (
     <section className="dashboard-card leaderboard-card">
@@ -178,15 +228,12 @@ export default function Leaderboard({
                 </div>
                 <div className="leaderboard-info">
                   <span className="leaderboard-name">{leaderboardUser.name}</span>
-                  <span className="leaderboard-sub">
-                    {activeMetric === 'streak'
-                      ? `${formatScore(leaderboardUser.score)} điểm`
-                      : `${leaderboardUser.streak} ngày chuỗi`}
-                  </span>
+                  <span className="leaderboard-sub">{renderSub(leaderboardUser)}</span>
                 </div>
                 <div className="leaderboard-value">
+                  <span className="leaderboard-value-icon">{valueIcon}</span>
                   <span className="leaderboard-value-num">{renderValue(leaderboardUser)}</span>
-                  <span className="leaderboard-value-unit">{activeTab.unit}</span>
+                  <span className="leaderboard-value-unit">{unit}</span>
                 </div>
               </li>
             );

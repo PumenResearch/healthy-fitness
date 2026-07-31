@@ -267,9 +267,9 @@ export default function Feed({ channel = 'feed' }: FeedProps) {
         <aside className="feed-sidebar">
           <Leaderboard
             limit={5}
-            metric={isTienCanh ? 'score' : 'streak'}
+            metric={isTienCanh ? 'tien_canh_score' : undefined}
             title={isTienCanh ? 'Xếp hạng Tiên cảnh' : 'Bảng xếp hạng'}
-            period={isTienCanh ? 'Tổng điểm tu luyện' : 'Tuần này'}
+            period={isTienCanh ? 'Tổng điểm Tiên cảnh' : 'Tuần này'}
           />
         </aside>
       </div>

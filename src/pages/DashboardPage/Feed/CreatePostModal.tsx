@@ -105,8 +105,9 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
   const isTienCanh = channel === 'tien_canh';
 
   // Fetch categories from API
+  // Tiên cảnh luôn refetch để đảm bảo có category 'secret' mới nhất
   useEffect(() => {
-    if (isOpen && categories.length === 0) {
+    if (isOpen && (categories.length === 0 || isTienCanh)) {
       fetchCategories()
         .then(setCategories)
         .catch(() => showToast('Không tải được danh mục', 'error'));

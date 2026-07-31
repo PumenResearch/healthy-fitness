@@ -156,6 +156,9 @@ export interface ApiLeaderboardProfile {
   streak: number
   longest_streak: number
   score: number
+  tien_canh_score: number
+  tien_canh_streak: number
+  tien_canh_longest_streak: number
   rank: number
 }
 
@@ -167,6 +170,16 @@ export async function fetchStreakLeaderboard(limit = 10): Promise<ApiLeaderboard
 export async function fetchScoreLeaderboard(limit = 10): Promise<ApiLeaderboardProfile[]> {
   const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 50)
   return request<ApiLeaderboardProfile[]>(`/profiles/leaderboard?type=score&limit=${safeLimit}`)
+}
+
+export async function fetchTienCanhScoreLeaderboard(limit = 10): Promise<ApiLeaderboardProfile[]> {
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 50)
+  return request<ApiLeaderboardProfile[]>(`/profiles/leaderboard?type=tien_canh_score&limit=${safeLimit}`)
+}
+
+export async function fetchTienCanhStreakLeaderboard(limit = 10): Promise<ApiLeaderboardProfile[]> {
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 50)
+  return request<ApiLeaderboardProfile[]>(`/profiles/leaderboard?type=tien_canh_streak&limit=${safeLimit}`)
 }
 
 export type PostFilter = 'all' | 'workout' | 'food'
