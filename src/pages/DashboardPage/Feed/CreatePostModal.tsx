@@ -139,6 +139,32 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Paste ảnh từ clipboard (Ctrl+V) — chỉ áp dụng cho Tiên cảnh
+  useEffect(() => {
+    if (!isOpen || !isTienCanh) return;
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = Array.from(e.clipboardData?.items || []);
+      const imageItem = items.find(item => item.type.startsWith('image/'));
+      if (!imageItem) return;
+      const file = imageItem.getAsFile();
+      if (!file) return;
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        showToast('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP', 'error');
+        return;
+      }
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        showToast('Ảnh vượt quá dung lượng tối đa 10MB', 'error');
+        return;
+      }
+      clearImage();
+      setSelectedImageFile(file);
+      setImageUrl(URL.createObjectURL(file));
+      setMediaType('image');
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [isOpen, isTienCanh]);
+
   if (!isOpen) return null;
 
   const safeIndex = categoryIndex < categories.length ? categoryIndex : 0;
@@ -218,7 +244,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
 
       const payload: CreatePostPayload = isTienCanh
         ? {
-            title: 'Ảnh Tiên cảnh',
+            title: '',
             category_id: categories.find(category => category.type === 'secret')?.id || categories.find(category => category.type === 'workout')?.id || currentCategory.id,
             channel,
             image_paths: imagePaths,
@@ -266,11 +292,27 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, initia
                   <button type="button" className="remove-img-btn" onClick={clearImage} aria-label="Xóa ảnh">×</button>
                 </div>
               ) : (
-                <div className="upload-dropzone">
+                <div
+                  className="upload-dropzone"
+                  onPaste={e => {
+                    const items = Array.from(e.clipboardData?.items || []);
+                    const imageItem = items.find(item => item.type.startsWith('image/'));
+                    if (!imageItem) return;
+                    const file = imageItem.getAsFile();
+                    if (!file) return;
+                    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) { showToast('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP', 'error'); return; }
+                    if (file.size > MAX_IMAGE_SIZE_BYTES) { showToast('Ảnh vượt quá dung lượng tối đa 10MB', 'error'); return; }
+                    clearImage();
+                    setSelectedImageFile(file);
+                    setImageUrl(URL.createObjectURL(file));
+                    setMediaType('image');
+                  }}
+                >
                   <input type="file" accept="image/jpeg,image/png,image/webp" id="tien-canh-img-file" className="file-input-hidden" onChange={handleImageFileChange} />
                   <label htmlFor="tien-canh-img-file" className="upload-label">
                     <strong>Chọn ảnh để tải lên</strong>
                     <span className="upload-hint">JPG, PNG hoặc WebP · Tối đa 10MB</span>
+                    <span className="upload-hint" style={{ opacity: 0.6, fontSize: '0.75rem' }}>hoặc nhấn Ctrl+V để dán ảnh từ clipboard</span>
                   </label>
                 </div>
               )}
